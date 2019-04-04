@@ -1,0 +1,166 @@
+#body {
+    /*background-color: rgba(210,180,140,0.3);*/
+    margin: auto;
+    overflow: hidden;
+}
+
+#controller {
+    position: absolute;
+    width: 100%;
+    height: 200px;
+    /*background-color: rgba(210, 180, 140, 0.05);*/
+    z-index: 100;
+    bottom: 20px;
+}
+
+#controller #control-center {
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    width: 240px;
+    height: 200px;
+}
+
+#controller #control-left {
+    border-radius: 50%;
+    position: absolute;
+    left: 20px;
+    padding: 10px;
+    /*background-color: red;*/
+    border-style: solid;
+    width: 180px;
+    height: 180px;
+}
+
+#controller #control-left #m-top {
+    position: absolute;
+    top: 0;
+    left: 42%;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-left #m-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 42%;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-left #m-right {
+    position: absolute;
+    top: 40%;
+    right: 10px;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-left #m-center {
+    position: absolute;
+    top: 40%;
+    left: 38%;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-left #m-forward {
+    position: absolute;
+    top: 22%;
+    left: 42%;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-left #m-backward {
+    position: absolute;
+    top: 58%;
+    left: 42%;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-left #m-left {
+    position: absolute;
+    top: 40%;
+    left: 10px;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-right {
+    border-radius: 50%;
+    position: absolute;
+    right: 20px;
+    padding: 10px;
+    border-style: solid;
+    width: 180px;
+    height: 180px;
+}
+
+#controller #control-right #r-top {
+    position: absolute;
+    top: 0;
+    left: 42%;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-right #r-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 42%;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-right #r-right {
+    position: absolute;
+    top: 40%;
+    right: 10px;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-right #r-center {
+    position: absolute;
+    top: 40%;
+    left: 38%;
+    height: auto;
+    margin: auto;
+
+}
+
+#controller #control-right #r-left {
+    position: absolute;
+    top: 40%;
+    left: 10px;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#information{
+    position: absolute;
+    width: 200px;
+    top:20%;
+    z-index: 100;
+}
+#information p{
+    text-align: center;
+}
+#information ul {
+    list-style-type: none;
+    margin: 0;
+    padding-left: 20px;
+}
