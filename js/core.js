@@ -1,3 +1,7 @@
+//TO DO
+//Rotate object in closer direction
+//Manually control object
+
 var __extends = this && this.__extends || function (e, t) {
     function n() {
         this.constructor = e;
@@ -768,16 +772,14 @@ propellerright= DRONE.preload.result.model.propeller_right,
         getNodeIndex = (w, h, d, width, height) => {
             return w + h * width + d * width * height;
         };
-        world3DtoGrid = (
-            position,
-            width,
-            height,
-            depth,
-            w_width,
-            w_height,
-            w_depth
-        ) => {
-            let pos = position.clone();
+        world3DtoGrid = (position,
+                         width,
+                         height,
+                         depth,
+                         w_width,
+                         w_height,
+                         w_depth) => {
+            let pos = JSON.parse(JSON.stringify(position));
             pos.x += w_width / 2;
             pos.y = w_height / 2 - pos.y;
             let cor = {};
@@ -804,11 +806,120 @@ propellerright= DRONE.preload.result.model.propeller_right,
                 this.get('height_segment')
             );
         };
+        animateRotation = () => {
+            if(this.get('animationPoints').length >0){
+
+                //Input is a vector 3
+                //extract first point
+                let target = new THREE.Vector3();
+                target.copy(this.get('animationPoints')[0])
+
+                let dronePos = new THREE.Vector3();
+
+                dronePos.copy(e.Drone.container.position);
+                target.y = dronePos.y;
+                let currDirection = target.sub(dronePos);
+                // //
+                let defaultDirection = new THREE.Vector3();
+                e.Drone.container.getWorldDirection(defaultDirection);
+                let angle = defaultDirection.angleTo(currDirection);
+                let dotProduct = defaultDirection.dot(currDirection)
+
+                // console.log(angle)
+                //
+                if (angle < 0.2) {
+                    e.sceneManager.off('draw', this.animateRotation);
+                    this.startPos = new THREE.Vector3();
+                    this.startPos.copy(e.Drone.container.position);
+                    e.sceneManager.on('draw', this.animateTranslation);
+
+                } else {
+                    console.log(angle)
+                    e.Drone.container.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle * 0.005)
+
+
+                }
+            }
+
+
+        }
+        animateTranslation = () => {
+
+            let target = this.get('animationPoints');
+            if(target.length >0){
+               let speed = 1;
+                let distance = e.Drone.container.position.distanceTo(target[0])
+                let dronePos = new THREE.Vector3();
+                let targetPos = new THREE.Vector3();
+                targetPos.copy(target[0]);
+                dronePos.copy(e.Drone.container.position);
+                let direction = targetPos.sub(dronePos).normalize();
+                if(distance <0.8){
+                    target.shift();
+                    this.set({animationPoints:target});
+                    e.sceneManager.on('draw', this.animateRotation);
+                    e.sceneManager.off('draw', this.animateTranslation);
+
+                }
+                else{
+                    e.Drone.container.position.add(direction.multiplyScalar(speed*0.2));
+                }
+            }
+            else{
+                console.log("Completed!")
+                e.sceneManager.off('draw', this.animateTranslation);
+            }
+
+
+
+        }
         initAnimation = () => {
-            if (this.get('animationPoints').vertices.length > 0) {
+            if (this.get('animationPoints').length > 0) {
+
+                e.sceneManager.on('draw', this.animateRotation);
+
 
             }
 
+        }
+        travelingSaleMan = (curPosIndex, targets) => {
+            let srcIndex = curPosIndex;
+            let paths = [];
+            let finder = new PF.AStarFinder({
+                heuristic: PF.Heuristic.euclidean
+            });
+
+             let targetClone = JSON.parse(JSON.stringify(targets));
+            var self = this;
+            returnMinPath(srcIndex,targetClone);
+
+            function returnMinPath(currentIndex, targets) {
+                if(targets.length ==0){
+                    return;
+                }
+                let _paths=[];
+                targets.forEach((t,i)=>{
+                    let nodes = self.initNodes();
+                    let targetIndex = self.world3DtoNode(t);
+                    let _path = finder.findPath(nodes[currentIndex], nodes[targetIndex], nodes);
+                    _paths.push(
+                        {
+                            from: currentIndex,
+                            to: targetIndex,
+                            paths: _path,
+                            index: i
+                        }
+                    )
+                })
+                let min = _paths.reduce((prev, current)=>{
+                    return (prev.paths.length < current.paths.length) ? prev : current
+                });
+                paths.push(min);
+                targets.splice(min.index, 1);
+                returnMinPath(min.to, targets);
+
+            }
+            return paths;
         }
         initPaths = () => {
 
@@ -816,76 +927,43 @@ propellerright= DRONE.preload.result.model.propeller_right,
             DronePos.copy(e.Drone.container.position);
             DronePos.applyAxisAngle(new THREE.Vector3(1, 0, 0), 0.5 * Math.PI);
             //Check if target is not empty
-            console.log(DronePos)
-            console.log(this.world3DtoNode(DronePos))
             if (this.targetContainer.children.length > 0) {
-
-                console.log(this.world3DtoNode(this.targetContainer.children[0].position))
                 let finder = new PF.AStarFinder({
                     heuristic: PF.Heuristic.euclidean
                 });
-                let _paths = finder.findPath(this.nodes[735], this.nodes[538], this.nodes);
+                //convert drone position to node index
+                let droneIndex = this.world3DtoNode(DronePos);
+                let targets = this.targetContainer.children.map(t=> {return t.position})
+                let _paths = this.travelingSaleMan(droneIndex, targets);
+                console.log(_paths);
                 if (_paths.length > 0) {
                     let lmaterial = new THREE.LineBasicMaterial({
                         color: 0x0000ff
                     });
-
+                    let temp =[];
                     let lgeometry = new THREE.Geometry();
                     _paths.forEach(p => {
-                        lgeometry.vertices.push(new THREE.Vector3(p[0], p[1], p[2]));
+                       if(p.paths.length >0){
+                           p.paths.forEach(path=>{
+                               let v3 = new THREE.Vector3(path[0], path[1], path[2])
+                               lgeometry.vertices.push(new THREE.Vector3(path[0], path[1], path[2]));
+                               v3.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5 * Math.PI);
+                               temp.push(v3)
+                           })
+                       }
+
                     });
                     let line = new THREE.Line(lgeometry, lmaterial);
                     this.container.add(line);
-                    this.set({animationPoints:lgeometry});
-                    let self = this;
-                    let positionX = [];
-                    let positionY = [];
-                    let positionZ = [];
-                    lgeometry.vertices.forEach(pos => {
-                        positionX.push(pos.x)
-                        positionY.push(pos.y)
-                        positionZ.push(pos.z)
-                    })
-                    let initialPosX = {
-                        x: positionX[0],
-                        y: positionY[0],
-                        z: positionZ[0]
-                    };
-                    this.tween = new createjs.Tween(initialPosX).to({
-                        x: positionX,
-                        y: positionY,
-                        z: positionZ
-                    }, 50000);
-                    this.tween.onChange(function () {
-                        e.Drone.container.up.set(0, 0, 1);
-                        e.Drone.container.lookAt(initialPosX.x, initialPosX.y, initialPosX.z)
-                        e.Drone.container.position.x = initialPosX.x;
-                        e.Drone.container.position.y = initialPosX.y;
-                        e.Drone.container.position.z = initialPosX.z;
-                        // if (self.isFollowAgent) {
-                        //     var relativeCameraOffset = new THREE.Vector3(0, 10, -250);
-                        //     var cameraOffset = relativeCameraOffset.applyMatrix4(
-                        //         self.agent.matrixWorld
-                        //     );
-                        //     self.camera.position.x = cameraOffset.x;
-                        //     self.camera.position.y = cameraOffset.y;
-                        //     self.camera.position.z = cameraOffset.z;
-                        //     self.camera.up.set(0, 0, 1);
-                        //     self.camera.lookAt(self.agent.position);
-                        // }
-                    })
-
-                    this.tween.start();
-                    // let destination = new THREE.Vector3(443,224,20);
-                    // destination.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5 * Math.PI);
-                    // createjs.Tween.get(e.Drone.container.position).to(destination,100000)
-                    // e.sceneManager.on('draw', this.initAnimation)
+                    this.set({animationPoints:temp});
+                    this.initAnimation();
+                //
                 }
             }
 
 
         }
-        initRandomTarget = () => {
+        initRandomTarget = (count) => {
             const clamp = (val, min, max) => {
                 return Math.min(Math.max(min, val), max);
             };
@@ -893,18 +971,21 @@ propellerright= DRONE.preload.result.model.propeller_right,
             const getRandom = (min, max) => {
                 return Math.random() * (max - min) + min;
             };
-            let targetGeo = new THREE.BoxGeometry(10, 10, 10);
-            let targetMat = new THREE.MeshBasicMaterial({
-                color: 0x00ff00
-            });
-            let target = new THREE.Mesh(targetGeo, targetMat);
-            target.name = "target";
-            target.position.set(
-                getRandom(-512, 512),
-                getRandom(-256, 256),
-                getRandom(10, 40)
-            );
-            this.targetContainer.add(target);
+            for (let i = 0; i < count; i++) {
+                let targetGeo = new THREE.BoxGeometry(10, 10, 10);
+                let targetMat = new THREE.MeshBasicMaterial({
+                    color: 0x00ff00
+                });
+                let target = new THREE.Mesh(targetGeo, targetMat);
+                target.name = "target";
+                target.position.set(
+                    getRandom(-300, 300),
+                    getRandom(-200, 200),
+                    getRandom(10, 40)
+                );
+                this.targetContainer.add(target);
+            }
+
 
         };
 
@@ -912,8 +993,11 @@ propellerright= DRONE.preload.result.model.propeller_right,
             this.initConfig();
             this.initPlane();
             this.initOSM();
-            this.initRandomTarget();
-            this.container.add(this.targetContainer)
+            this.initRandomTarget(2);
+
+            this.container.add(this.targetContainer);
+
+
 
         }
 
@@ -953,14 +1037,14 @@ propellerright= DRONE.preload.result.model.propeller_right,
                         let index =
                             w + h * width.length + d * height.length * width.length;
                         let node = new PF.Node(
-                            element.x_3D,
-                            element.y_3D,
-                            element.z_3D
+                            parseFloat(element.x_3D),
+                            parseFloat(element.y_3D),
+                            parseFloat(element.z_3D),
                         );
                         node.index = index;
-                        node.xGrid = element.x;
-                        node.yGrid = element.y;
-                        node.zGrid = element.z;
+                        node.xGrid = parseInt(element.x);
+                        node.yGrid = parseInt(element.y);
+                        node.zGrid = parseInt(element.z);
                         nodes.push(node);
                     });
                 });
@@ -968,20 +1052,19 @@ propellerright= DRONE.preload.result.model.propeller_right,
             return nodes;
         }
         initMatrixWorld = (width = 30, height = 16, depth = 3, w_world = 1024, h_world = 512, d_world = 60) => {
-            const create3Dmatrix = (
-                width,
-                height,
-                depth,
-                w_world,
-                h_world,
-                d_world
-            ) => {
+            const create3Dmatrix = (width,
+                                    height,
+                                    depth,
+                                    w_world,
+                                    h_world,
+                                    d_world) => {
                 let matrix = [];
                 for (let d = 0; d < depth; d++) {
                     let _h = [];
                     for (let h = 0; h < height; h++) {
                         let m = [];
                         for (let w = 0; w < width; w++) {
+                            let iswalkable =0;
                             let neighbours = [];
                             let currentIndex = w + h * width + d * height * width;
                             let _left = w == 0 ? null : currentIndex - 1;
@@ -1075,6 +1158,25 @@ propellerright= DRONE.preload.result.model.propeller_right,
                             if (_leftBottom != null) neighbours.push(_leftBottom);
                             if (_leftBottomUp != null) neighbours.push(_leftBottomUp);
                             if (_leftBottomDown != null) neighbours.push(_leftBottomDown);
+
+                            let objects = e.sceneManager.scene.getObjectByName("building");
+                           // console.log(objects)
+                            for (let i = 0; i < objects.children.length; i++) {
+                                var bbox = new THREE.Box3().setFromObject(objects.children[i]);
+                                // console.log(bbox);
+
+                                if (
+                                    bbox.containsPoint({
+                                        x: w * (w_world / width) - w_world / 2,
+                                        y: h_world / 2 - h * (h_world / height),
+                                        z: d * (d_world / depth)
+                                    })
+                                ) {
+                                    iswalkable = 1;
+                                    break;
+                                }
+                            }
+
                             m.push({
                                 x: w,
                                 y: h,
@@ -1085,7 +1187,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
                                 x_3D: w * (w_world / width) - w_world / 2,
                                 y_3D: h_world / 2 - h * (h_world / height),
                                 z_3D: d * (d_world / depth),
-                                walkable: 0, //true and 1 =false
+                                walkable: iswalkable, //true and 1 =false
                                 nodeIndex: w + h * width + d * height * width,
                                 n_left: _left,
                                 n_right: _right,
@@ -1093,7 +1195,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
                                 n_bottom: _bottom,
                                 n_up: _up,
                                 n_down: _down,
-                                n_neighbours: neighbours
+                                n_neighbours: iswalkable ==0?neighbours:[]
                             });
                         }
                         _h.push(m);
@@ -1103,9 +1205,6 @@ propellerright= DRONE.preload.result.model.propeller_right,
                 return matrix;
             };
 
-            const clamp = (val, min, max) => {
-                return Math.min(Math.max(min, val), max);
-            };
             let matrix = create3Dmatrix(
                 width,
                 height,
@@ -1114,53 +1213,55 @@ propellerright= DRONE.preload.result.model.propeller_right,
                 h_world,
                 d_world
             );
-            let nodes = this.projectMatrix(matrix);
-            this.set({matrixData: matrix})
-            this.on('change:matrixData', this._updateMatrix)
-            var self = this;
-            nodes.forEach(node => {
-                var objects = e.sceneManager.scene.getObjectByName("building");
-                let material = new THREE.MeshBasicMaterial({
-                    color: 0xff0000
-                });
-                for (let i = 0; i < objects.children.length; i++) {
-                    var bbox = new THREE.Box3().setFromObject(objects.children[i]);
-                    // console.log(bbox);
+           return matrix;
+            // let nodes = this.projectMatrix(matrix);
+            // this.set({matrixData: matrix})
+            // this.on('change:matrixData', this._updateMatrix)
+            // var self = this;
+            // nodes.forEach(node => {
+            //     var objects = e.sceneManager.scene.getObjectByName("building");
+            //     let material = new THREE.MeshBasicMaterial({
+            //         color: 0xff0000
+            //     });
+            //     for (let i = 0; i < objects.children.length; i++) {
+            //         var bbox = new THREE.Box3().setFromObject(objects.children[i]);
+            //         // console.log(bbox);
+            //
+            //         if (
+            //             bbox.containsPoint({
+            //                 x: node.x,
+            //                 y: node.y,
+            //                 z: node.z
+            //             })
+            //         ) {
+            //             material = new THREE.MeshBasicMaterial({
+            //                 color: 0xffff00,
+            //                 wireframe: true
+            //             });
+            //             //Place some obstacles at given cells
+            //             let myMatrix = self.get('matrixData')
+            //             myMatrix[node.zGrid][node.yGrid][node.xGrid].walkable = 1;
+            //             self.set({matrixData: myMatrix});
+            //             self.trigger('change:matrixData');
+            //             break;
+            //         }
+            //     }
+            //
+            //     let geometry = new THREE.BoxGeometry(1, 1, 1);
+            //
+            //     let cube = new THREE.Mesh(geometry, material);
+            //     cube.name = "grid";
+            //     cube.position.x = node.x;
+            //     cube.position.y = node.y;
+            //     cube.position.z = node.z;
+            //     self.matrixContainer.add(cube);
+            //
+            // });
+            // this.container.add(this.matrixContainer);
+            // nodes = this.updateNodes(matrix, nodes);
+            // this.nodes = nodes;
+            //this.initPaths();
 
-                    if (
-                        bbox.containsPoint({
-                            x: node.x,
-                            y: node.y,
-                            z: node.z
-                        })
-                    ) {
-                        material = new THREE.MeshBasicMaterial({
-                            color: 0xffff00,
-                            wireframe: true
-                        });
-                        //Place some obstacles at given cells
-                        let myMatrix = self.get('matrixData')
-                        myMatrix[node.zGrid][node.yGrid][node.xGrid].walkable = 1;
-                        self.set({matrixData: myMatrix});
-                        self.trigger('change:matrixData');
-                        break;
-                    }
-                }
-
-                let geometry = new THREE.BoxGeometry(1, 1, 1);
-
-                let cube = new THREE.Mesh(geometry, material);
-                cube.name = "grid";
-                cube.position.x = node.x;
-                cube.position.y = node.y;
-                cube.position.z = node.z;
-                self.matrixContainer.add(cube);
-
-            });
-            this.container.add(this.matrixContainer);
-            nodes = this.updateNodes(matrix, nodes);
-            this.nodes = nodes;
-            this.initPaths();
         }
         drawBuilding = (buildings, CENTER_LON, CENTER_LAT, zoom) => {
 
@@ -1216,10 +1317,56 @@ propellerright= DRONE.preload.result.model.propeller_right,
                 this.buildingContainer.add(shapeMesh);
             }
             this.container.add(this.buildingContainer);
-            this.initMatrixWorld(30, 16, 3, 1024, 512, 60);
+            this.set({matrixData: this.initMatrixWorld()});//matrix data is ready
+            this.initPaths();
 
         }
+        initNodes =()=>{
+            let matrix = this.get('matrixData');
+            let nodes = [];
+            //create nodes first
+            matrix.forEach((height, d) => {
+                height.forEach((width, h) => {
+                    width.forEach((element, w) => {
+                        let index =
+                            w + h * width.length + d * height.length * width.length;
+                        let node = new PF.Node(
+                            parseFloat(element.x_3D),
+                            parseFloat(element.y_3D),
+                            parseFloat(element.z_3D),
+                        );
+                        node.index = index;
+                        node.xGrid = parseInt(element.x);
+                        node.yGrid = parseInt(element.y);
+                        node.zGrid = parseInt(element.z);
+                        nodes.push(node);
+                    });
+                });
+            });
+            //update nodes neighbours
+            matrix.forEach((height, d) => {
+                height.forEach((width, h) => {
+                    width.forEach((element, w) => {
+                        let index =
+                            w + h * width.length + d * height.length * width.length;
+                        if (element.walkable === 0) {
+                            //Go to its neighbours
+                            element.n_neighbours.forEach(n => {
+                                //Check if the neighbour index is walkable
+                                if (
+                                    matrix[nodes[n].zGrid][nodes[n].yGrid][nodes[n].xGrid]
+                                        .walkable === 0
+                                ) {
+                                    nodes[index].neighbors.push(nodes[n]);
+                                }
+                            });
+                        }
+                    });
+                });
+            });
 
+            return nodes;
+        }
         initOSM() {
             var sefl = this;
             this.getOSM()
