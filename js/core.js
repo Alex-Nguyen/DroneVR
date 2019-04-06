@@ -767,6 +767,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
             this.matrixContainer.name = 'matrix';
             this.targetContainer = new THREE.Group();
             this.targetContainer.name = 'targetContainer';
+            this.position =0;
         }
 
         getNodeIndex = (w, h, d, width, height) => {
@@ -834,7 +835,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
                     e.sceneManager.on('draw', this.animateTranslation);
 
                 } else {
-                    console.log(angle)
+
                     e.Drone.container.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle * 0.005)
 
 
@@ -843,11 +844,24 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
 
         }
+
         animateTranslation = () => {
+            // if(this.position >0.99) return;
+            // this.position +=1/1e4;
+            //
+            //     let point = this.get('animationPoints').getPointAt(this.position);
+            // e.Drone.container.lookAt(point);
+            // e.Drone.container.position.copy(point)
+            //     e.sceneManager.set({droneAltitude:e.Drone.container.position.y})
+
+
+            // let angle = this.getAngle(this.position);
+            // e.Drone.container.quaternion.setFromAxisAngle( new THREE.Vector3(0, 1, 0), angle );
+            // e.Drone.container.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle )
 
             let target = this.get('animationPoints');
             if(target.length >0){
-               let speed = 1;
+               let speed = 0.3;
                 let distance = e.Drone.container.position.distanceTo(target[0])
                 let dronePos = new THREE.Vector3();
                 let targetPos = new THREE.Vector3();
@@ -862,7 +876,8 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
                 }
                 else{
-                    e.Drone.container.position.add(direction.multiplyScalar(speed*0.2));
+                    e.Drone.container.position.add(direction.multiplyScalar(speed));
+                    e.sceneManager.set({droneAltitude:e.Drone.container.position.y})
                 }
             }
             else{
@@ -874,7 +889,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
         }
         initAnimation = () => {
-            if (this.get('animationPoints').length > 0) {
+            if(this.get('animationPoints').length >0){
 
                 e.sceneManager.on('draw', this.animateRotation);
 
@@ -955,6 +970,8 @@ propellerright= DRONE.preload.result.model.propeller_right,
                     });
                     let line = new THREE.Line(lgeometry, lmaterial);
                     this.container.add(line);
+                    // let catmul = new THREE.CatmullRomCurve3(temp);
+                    // catmul.getPoints(300);
                     this.set({animationPoints:temp});
                     this.initAnimation();
                 //
@@ -993,7 +1010,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
             this.initConfig();
             this.initPlane();
             this.initOSM();
-            this.initRandomTarget(2);
+            this.initRandomTarget(5);
 
             this.container.add(this.targetContainer);
 
