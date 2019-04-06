@@ -861,7 +861,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
             let target = this.get('animationPoints');
             if(target.length >0){
-               let speed = 0.3;
+               let speed = 1;
                 let distance = e.Drone.container.position.distanceTo(target[0])
                 let dronePos = new THREE.Vector3();
                 let targetPos = new THREE.Vector3();
@@ -888,10 +888,18 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
 
         }
-        initAnimation = () => {
-            if(this.get('animationPoints').length >0){
+        initAnimation = (flag=true) => {
+            if(flag===true){
+                if(this.get('animationPoints').length >0){
 
-                e.sceneManager.on('draw', this.animateRotation);
+                    e.sceneManager.on('draw', this.animateRotation);
+
+
+                }
+            }
+            else{
+
+                e.sceneManager.off('draw', this.animateRotation);
 
 
             }
@@ -1542,6 +1550,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
             e.sceneManager.on('change:droneAltitude', this._updateAltitude)
 
+
         }
 
         _updateAltitude = () => {
@@ -1617,6 +1626,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
         }
         _navCenterMouseDown = () => {
             this.set({navMouseCenterClicked: true});
+            e.environment.initAnimation(false);
         }
         _navTopMouseDown = () => {
             this.set({navMouseTopClicked: true});
