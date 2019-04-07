@@ -810,69 +810,44 @@ propellerright= DRONE.preload.result.model.propeller_right,
         animateRotation = () => {
             if(this.get('animationPoints').length >0){
 
-                //Input is a vector 3
-                //extract first point
-                let target = new THREE.Vector3();
-                target.copy(this.get('animationPoints')[0])
-
-                let dronePos = new THREE.Vector3();
-
-                dronePos.copy(e.Drone.container.position);
-                target.y = dronePos.y;
-                let currDirection = target.sub(dronePos);
-                // //
-                let defaultDirection = new THREE.Vector3();
-                e.Drone.container.getWorldDirection(defaultDirection);
-                let angle = defaultDirection.angleTo(currDirection);
-                let dotProduct = defaultDirection.dot(currDirection)
-
-                // console.log(angle)
-                //
-                if (angle < 0.2) {
+                if(e.Drone.container.quaternion.angleTo(this.get('quaternion')) <0.1){
                     e.sceneManager.off('draw', this.animateRotation);
                     this.startPos = new THREE.Vector3();
                     this.startPos.copy(e.Drone.container.position);
                     e.sceneManager.on('draw', this.animateTranslation);
-
-                } else {
-
-                    e.Drone.container.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle * 0.005)
-
-
                 }
+                e.Drone.container.quaternion.rotateTowards(this.get('quaternion'), 0.01);
+
             }
 
 
         }
 
         animateTranslation = () => {
-            // if(this.position >0.99) return;
-            // this.position +=1/1e4;
-            //
-            //     let point = this.get('animationPoints').getPointAt(this.position);
-            // e.Drone.container.lookAt(point);
-            // e.Drone.container.position.copy(point)
-            //     e.sceneManager.set({droneAltitude:e.Drone.container.position.y})
 
-
-            // let angle = this.getAngle(this.position);
-            // e.Drone.container.quaternion.setFromAxisAngle( new THREE.Vector3(0, 1, 0), angle );
-            // e.Drone.container.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle )
 
             let target = this.get('animationPoints');
             if(target.length >0){
-               let speed = 1;
+               let speed = 0.5;
                 let distance = e.Drone.container.position.distanceTo(target[0])
                 let dronePos = new THREE.Vector3();
                 let targetPos = new THREE.Vector3();
                 targetPos.copy(target[0]);
                 dronePos.copy(e.Drone.container.position);
                 let direction = targetPos.sub(dronePos).normalize();
-                if(distance <0.8){
+                if(distance <0.5){
                     target.shift();
+
                     this.set({animationPoints:target});
-                    e.sceneManager.on('draw', this.animateRotation);
-                    e.sceneManager.off('draw', this.animateTranslation);
+                    if(target.length >0){
+                        this.initQuaternion(target[0]);
+                        e.sceneManager.on('draw', this.animateRotation);
+                        e.sceneManager.off('draw', this.animateTranslation);
+                    }
+                   else{
+                        e.sceneManager.off('draw', this.animateTranslation);
+                    }
+
 
                 }
                 else{
@@ -888,10 +863,22 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
 
         }
+        initQuaternion=(target)=>{
+            let cloneTarget = new THREE.Vector3();
+            cloneTarget.copy(target);
+            let quaternion = new THREE.Quaternion();
+            let m4 = new THREE.Matrix4();
+            let position = new THREE.Vector3();
+            position.copy(e.Drone.container.position);
+            if(cloneTarget.y < position.y) cloneTarget.y = position.y;
+            m4.lookAt(cloneTarget, position, new THREE.Vector3(0,1,0));
+            quaternion.setFromRotationMatrix(m4);
+            this.set({quaternion:quaternion})
+        }
         initAnimation = (flag=true) => {
             if(flag===true){
                 if(this.get('animationPoints').length >0){
-
+                    this.initQuaternion(this.get('animationPoints')[0]);
                     e.sceneManager.on('draw', this.animateRotation);
 
 
