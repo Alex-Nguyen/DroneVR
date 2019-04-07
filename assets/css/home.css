@@ -59,7 +59,16 @@
     cursor: pointer;
 }
 
-#controller #control-left #m-center {
+#controller #control-left #m-center_start{
+    position: absolute;
+    top: 40%;
+    left: 38%;
+    height: auto;
+    margin: auto;
+    cursor: pointer;
+}
+
+#controller #control-left #m-center_stop{
     position: absolute;
     top: 40%;
     left: 38%;

@@ -808,6 +808,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
             );
         };
         animateRotation = () => {
+            if(e.sceneManager.get('isAnimation')==false) return;
             if(this.get('animationPoints').length >0){
 
                 if(e.Drone.container.quaternion.angleTo(this.get('quaternion')) <0.1){
@@ -824,7 +825,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
         }
 
         animateTranslation = () => {
-
+            if(e.sceneManager.get('isAnimation')==false) return;
 
             let target = this.get('animationPoints');
             if(target.length >0){
@@ -965,8 +966,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
                     });
                     let line = new THREE.Line(lgeometry, lmaterial);
                     this.container.add(line);
-                    // let catmul = new THREE.CatmullRomCurve3(temp);
-                    // catmul.getPoints(300);
+
                     this.set({animationPoints:temp});
                     this.initAnimation();
                 //
@@ -1510,6 +1510,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
         init() {
 
             $(window).on('resize', this._onResize);// window resize
+            $('#m-center_start').hide();
             $('#globalView').on('click', this._onGlobalView)
             $('#thirdPersonView').on('click', this._onThirdPersonView)
             $('#m-top').on('mousedown', this._navTopMouseDown)
@@ -1524,7 +1525,8 @@ propellerright= DRONE.preload.result.model.propeller_right,
             $('#m-left').on('mouseup', this._navLeftMouseUp)
             $('#m-right').on('mousedown', this._navRightMouseDown)
             $('#m-right').on('mouseup', this._navRightMouseUp)
-            $('#m-center').on('mousedown', this._navCenterMouseDown)
+            $('#m-center_start').on('mousedown', this._navCenterStartMouseDown)
+            $('#m-center_stop').on('mousedown', this._navCenterStopMouseDown)
 
             $('#r-top').on('mousedown', this._rotTopMouseDown)
             $('#r-top').on('mouseup', this._rotTopMouseUp)
@@ -1611,9 +1613,19 @@ propellerright= DRONE.preload.result.model.propeller_right,
             this.set({navMouseRightClicked: true});
 
         }
-        _navCenterMouseDown = () => {
-            this.set({navMouseCenterClicked: true});
-            e.environment.initAnimation(false);
+        _navCenterStartMouseDown = () => {
+            e.sceneManager.set({isAnimation: true});
+
+            $('#m-center_start').hide();
+            $('#m-center_stop').show();
+
+        }
+        _navCenterStopMouseDown = () => {
+            e.sceneManager.set({isAnimation: false});
+
+            $('#m-center_start').show();
+            $('#m-center_stop').hide();
+
         }
         _navTopMouseDown = () => {
             this.set({navMouseTopClicked: true});
