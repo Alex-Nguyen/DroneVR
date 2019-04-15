@@ -1,97 +1,97 @@
-//TO DO
-//Rotate object in closer direction
-//Manually control object
-
-var __extends = this && this.__extends || function (e, t) {
-    function n() {
-        this.constructor = e;
-    }
-
-    for (var r in t) t.hasOwnProperty(r) && (e[r] = t[r]);
-    e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-}, createjs;
 var DRONE;
-
 /*
-Loading assets and sve it to DRONE.preload.result.model
-drone model = DRONE.preload.result.model.drone
-propellerleft = DRONE.preload.result.model.propeller_left,
-propellerright= DRONE.preload.result.model.propeller_right,
- */
+Loading all required assets
+*/
 !function (e) {
-    var t = function (e) {
-        function t() {
-            var t = this;
-            e.apply(this, arguments), this._onFileLoad = function (e) {
-                var n = e.item.id;
-                t.result[n] = e.result, e.item.type == createjs.Types.IMAGE && (t.texture[n] = new THREE.Texture(e.result));
-            }, this._onComplete = function () {
-                t.trigger("complete");
-                $('#notification').html('Data is loaded!');
-
-            };
+    class _Preload extends Backbone.Model {
+        constructor() {
+            super();
         }
-
-        return __extends(t, e), t.prototype.load = function () {
-            $('#notification').html('Loading assets...');
-            this.result = {}, this.texture = {}, this._queue = new createjs.LoadQueue(), this._queue.setMaxConnections(4),
-                this._queue.addEventListener("complete", this._onComplete), this._queue.addEventListener("fileload", this._onFileLoad),
-                this._queue.loadManifest(t.MANIFEST, !0);
-        }, t.MANIFEST = [{
-            src: "assets/model/model.json",
-            id: "model",
-            type: createjs.Types.JSON
-        }], t;
-    }(Backbone.Model);
-    e.Preload = t, e.preload = new t();
+        load() {
+            this.result = {};
+            this._queue = new createjs.LoadQueue();
+            this._queue.setMaxConnections(4);
+            this._queue.on('complete', this._onComplete, this);
+            this._queue.on('fileload', this._onFileLoad, this);
+            this._queue.on('progress', this._onProgress, this);
+            this._queue.loadManifest([
+                {id: "model", src: "src/assets/model/model.json"},
+                {id: "map", src: "src/assets/model/map_data.xml"}
+            ]);
+        }
+        _onProgress(e) {
+            let progress = Math.round(e.loaded *100);
+            $('#percentile').html(`LOAD  ${progress} %`)
+        }
+        _onFileLoad(e) {
+            let n = e.item.id;
+            this.result[n] = e.result;
+        }
+        _onComplete() {
+           this.trigger('complete');
+           console.log("All assets are Loaded!")
+        }
+    }
+    e.Preload = _Preload, e.preload = new _Preload();
 }(DRONE || (DRONE = {}));
 
+/*Loading tensorflowjs coco-ssd model
+* Link: https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd
+* https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js
+*/
 !function (e) {
-    var t;
-    !function (e) {
-        function t(e, t) {
+    class t extends Backbone.Model{
+        constructor(){
+            super();
+        }
+        async init(){
+            const model = await cocoSsd.load();
+            this.model = await model;
+        }
+    }
+    e.CocoSsd = new t();
+}(DRONE || (DRONE = {}))
+
+
+/*Utility function*/
+!function (e) {
+    class t {
+        rgbaToVector4 (e, t) {
+            let n = chroma(e).alpha(t).gl();
+            return new THREE.Vector4(n[0], n[1], n[2], n[3]);
+        }
+        rgbToVector3 (e){
+            let t = chroma(e).gl();
+            return new THREE.Vector3(t[0], t[1], t[2]);
+        }
+        setRGBToVector4(e, t){
+            let n = chroma(e).gl();
+            t.x = n[0], t.y = n[1], t.z = n[2];
+        }
+        colorTransformToVector4 (e, t, n, r) {
+            let o = 1 - r;
+            n.x = e[0] * o + t[0] * r, n.y = e[1] * o + t[1] * r, n.z = e[2] * o + t[2] * r;
+        }
+        colorTransform (e, t, n) {
+            let r = 1 - n;
+            return chroma.gl(e[0] * r + t[0] * n, e[1] * r + t[1] * n, e[2] * r + t[2] * n).hex();
+        }
+        joinNames (e, t) {
             void 0 === t && (t = "");
-            var n, r, o;
+            let n, r, o;
+            for (r = e.concat(), o = r.length, n = 0; n < o; n++) r[n] = t + r[n];
+            return r.join(" ");
+        }
+        joinChangeNames (e, t) {
+            void 0 === t && (t = "");
+            let n, r, o;
             for (r = e.concat(), o = r.length, n = 0; n < o; n++) r[n] = "change:" + t + r[n];
             return r.join(" ");
         }
 
-        function n(e, t) {
-            void 0 === t && (t = "");
-            var n, r, o;
-            for (r = e.concat(), o = r.length, n = 0; n < o; n++) r[n] = t + r[n];
-            return r.join(" ");
-        }
-
-        function r(e, t, n) {
-            var r = 1 - n;
-            return chroma.gl(e[0] * r + t[0] * n, e[1] * r + t[1] * n, e[2] * r + t[2] * n).hex();
-        }
-
-        function o(e, t, n, r) {
-            var o = 1 - r;
-            n.x = e[0] * o + t[0] * r, n.y = e[1] * o + t[1] * r, n.z = e[2] * o + t[2] * r;
-        }
-
-        function i(e, t) {
-            var n = chroma(e).gl();
-            t.x = n[0], t.y = n[1], t.z = n[2];
-        }
-
-        function a(e, t) {
-            var n = chroma(e).alpha(t).gl();
-            return new THREE.Vector4(n[0], n[1], n[2], n[3]);
-        }
-
-        function s(e) {
-            var t = chroma(e).gl();
-            return new THREE.Vector3(t[0], t[1], t[2]);
-        }
-
-        e.joinChangeNames = t, e.joinNames = n, e.colorTransform = r, e.colorTransformToVector4 = o,
-            e.setRGBToVector4 = i, e.rgbaToVector4 = a, e.rgbToVector3 = s;
-    }(t = e.C || (e.C = {}));
-}(DRONE || (DRONE = {}));
+    }
+    e.Utility = new t();
+}(DRONE || (DRONE = {}))
 
 !function (e) {
     var t;
@@ -136,320 +136,27 @@ propellerright= DRONE.preload.result.model.propeller_right,
     }(t = e.vert || (e.vert = {}));
 }(DRONE || (DRONE = {}));
 
-//Drone model section
 !function (e) {
-    var t = function () {
-        function t() {
-            var t = this;
-            this._onDraw = function (n, r) {
-                var o, i, a;
-                i = 650 * r;
-                t.uniformsFace.rotation.value += i,
-                    t.uniformsWire.rotation.value += i;
-
-            }
-        }
-
-        return t.prototype.init = function () {
-            this.container = new THREE.Object3D();
-            this.initGeometry(),
-                this.initFace(),
-                this.initWire(),
-                this.container.scale.set(100, 100, 100),
-                this.container.position.set(0, 28, 0),
-                e.sceneManager.on("draw", this._onDraw);
-        }, t.prototype.updateNavController = function () {
-            let speed = 0.08;
-            let rotatespeed = 0.01;
-            e.droneController.get('navMouseLeftClicked') === true ? this.onMoveLeft(speed) : null;
-            e.droneController.get('navMouseRightClicked') === true ? this.onMoveRight(speed) : null;
-            e.droneController.get('navMouseTopClicked') === true ? this.onMoveUp(speed) : null;
-            e.droneController.get('navMouseBottomClicked') === true ? this.onMoveDown(speed) : null;
-            e.droneController.get('navMouseForwardClicked') === true ? this.onMoveForward(speed) : null;
-            e.droneController.get('navMouseBackwardClicked') === true ? this.onMoveBackward(speed) : null;
-            e.droneController.get('rotMouseLeftClicked') === true ? this.onRotateLeft(rotatespeed) : null;
-            e.droneController.get('rotMouseRightClicked') === true ? this.onRotateRight(rotatespeed) : null;
-            e.droneController.get('rotMouseTopClicked') === true ? this.onRotateUp(rotatespeed) : null;
-            e.droneController.get('rotMouseBottomClicked') === true ? this.onRotateDown(rotatespeed) : null;
-            e.sceneManager.updateCamera();
-
-        }, t.prototype.onRotateLeft = function (speed) {
-
-            this.container.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), speed);
-
-
-        }, t.prototype.onRotateRight = function (speed) {
-            this.container.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), -speed);
-        }, t.prototype.onRotateUp = function (speed) {
-            this.container.rotation.x += speed;
-        }, t.prototype.onRotateDown = function (speed) {
-            this.container.rotation.x -= speed;
-        }
-
-            , t.prototype.onMoveForward = function (speed) {
-            let direction = new THREE.Vector3();
-            this.container.getWorldDirection(direction);
-            this.container.position.add(direction.multiplyScalar(speed));
-
-
-        }, t.prototype.onMoveBackward = function (speed) {
-            let direction = new THREE.Vector3();
-            this.container.getWorldDirection(direction);
-            this.container.position.add(direction.multiplyScalar(-speed));
-        }
-            , t.prototype.onMoveLeft = function (speed) {
-            let direction = new THREE.Vector3();
-            this.container.getWorldDirection(direction);
-            let directionRight = THREE.Vector3();
-            directionRight = direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
-            this.container.position.add(directionRight.multiplyScalar(speed));
-
-        }, t.prototype.onMoveUp = function (speed) {
-            this.container.position.y += speed;
-            e.sceneManager.set({droneAltitude: this.container.position.y});
-        },
-            t.prototype.onMoveDown = function (speed) {
-                this.container.position.y -= speed;
-                e.sceneManager.set({droneAltitude: this.container.position.y});
-            },
-            t.prototype.onMoveRight = function (speed) {
-                let direction = new THREE.Vector3();
-                this.container.getWorldDirection(direction);
-                let directionRight = THREE.Vector3();
-                directionRight = direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
-                this.container.position.add(directionRight.multiplyScalar(-speed));
-            },
-            t.prototype.initGeometry = function () {
-                var t = e.preload.result.model.drone,
-                    n = e.preload.result.model.propeller_left,
-                    r = e.preload.result.model.propeller_right,
-                    o = new THREE.BufferGeometry(),
-                    i = new THREE.BufferGeometry(),
-                    a = new THREE.BufferGeometry();
-
-                o.addAttribute("position", new THREE.BufferAttribute(new Float32Array(t.v), 3)),
-                    i.addAttribute("position", new THREE.BufferAttribute(new Float32Array(n.v), 3)),
-                    a.addAttribute("position", new THREE.BufferAttribute(new Float32Array(r.v), 3)),
-                    o.setIndex(new THREE.BufferAttribute(new Uint32Array(t.fv), 1)), i.setIndex(new THREE
-                    .BufferAttribute(new Uint32Array(n.fv), 1)),
-                    a.setIndex(new THREE.BufferAttribute(new Uint32Array(r.fv), 1)), o.computeVertexNormals(),
-                    i.computeVertexNormals(), a.computeVertexNormals();
-                var s = -.01;
-                o.translate(0, s, 0), i.translate(0, s, 0), a.translate(0, s, 0), this.geometryFace = this
-                    .createGeometryFace({
-                        vBody: o.attributes.position.array,
-                        vPropellerL: i.attributes.position.array,
-                        vPropellerR: a.attributes.position.array,
-                        iBody: t.fv,
-                        iPropellerL: n.fv,
-                        iPropellerR: r.fv
-                    }), this.geometryWire = this.createGeometryWire({
-                    vBody: new THREE.EdgesGeometry(o).attributes.position.array,
-                    vPropellerL: new THREE.EdgesGeometry(i).attributes.position.array,
-                    vPropellerR: new THREE.EdgesGeometry(a).attributes.position.array
-                });
-
-            },
-            t.prototype.createGeometryFace = function (e) {
-                var t, n, r, o, i, a, s, c, l, f;
-                for (a = 4, i = (e.vBody.length + 3 * e.vPropellerL.length + 3 * e.vPropellerR.length) / 3,
-                         l = new Float32Array(i * a), i = e.iBody.length + 3 * e.iPropellerL.length + 3 * e
-                    .iPropellerR.length,
-                         f = new Uint32Array(i), i = e.vBody.length / 3, t = 0; t < i; t++) r = t * a, o = 3 * t,
-                    l[r + 0] = e.vBody[o + 0], l[r + 1] = e.vBody[o + 1], l[r + 2] = e.vBody[o + 2],
-                    l[r + 3] = 0;
-                for (i = e.iBody.length, t = 0; t < i; t++) f[t] = e.iBody[t];
-                for (s = e.vBody.length / 3, i = e.vPropellerL.length / 3, n = 0; n < 3; n++)
-                    for (t = 0; t < i; t++) r = (t + n * i + s) * a,
-                        o = 3 * t, l[r + 0] = e.vPropellerL[o + 0], l[r + 1] = e.vPropellerL[o + 1], l[r + 2] =
-                        e.vPropellerL[o + 2],
-                        l[r + 3] = 2 * n + 1;
-                for (c = e.iBody.length, i = e.iPropellerL.length, n = 0; n < 3; n++) {
-                    for (t = 0; t < i; t++) r = t + n * i + c, f[r] = e.iPropellerL[t] + s;
-                    s += e.vPropellerL.length / 3;
-                }
-                for (s = (e.vBody.length + 3 * e.vPropellerL.length) / 3, i = e.vPropellerR.length / 3,
-                         n = 0; n < 3; n++)
-                    for (t = 0; t < i; t++) r = (t + n * i + s) * a, o = 3 * t, l[r + 0] = e.vPropellerR[o + 0],
-                        l[r + 1] = e.vPropellerR[o + 1], l[r + 2] = e.vPropellerR[o + 2], l[r + 3] = 2 * n + 2;
-                for (c = e.iBody.length + 3 * e.iPropellerL.length, i = e.iPropellerR.length, n = 0; n <
-                3; n++) {
-                    for (t = 0; t < i; t++) r = t + n * i + c, f[r] = e.iPropellerR[t] + s;
-                    s += e.vPropellerR.length / 3;
-                }
-                var u, h, v;
-                return u = 3, h = new THREE.InstancedBufferGeometry(), h.maxInstancedCount = u,
-                    h.setIndex(new THREE.BufferAttribute(new Uint32Array(f), 1)), v = new THREE
-                    .InterleavedBuffer(l, a),
-                    h.addAttribute("position", new THREE.InterleavedBufferAttribute(v, 3, 0)), h.addAttribute(
-                    "propeller", new THREE.InterleavedBufferAttribute(v, 1, 3)),
-                    h.addAttribute("num", new THREE.InstancedBufferAttribute(new Float32Array([0, 1, 2]), 1,
-                        true)),
-                    h.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 999), h;
-            },
-            t.prototype.createGeometryWire = function (e) {
-                var t, n, r, o, i, a, s, c;
-                for (a = 4, i = (e.vBody.length + 3 * e.vPropellerL.length + 3 * e.vPropellerR.length) / 3,
-                         c = new Float32Array(i * a), i = e.vBody.length / 3, t = 0; t < i; t++) r = t * a,
-                    o = 3 * t, c[r + 0] = e.vBody[o + 0], c[r + 1] = e.vBody[o + 1], c[r + 2] = e.vBody[o + 2],
-                    c[r + 3] = 0;
-                for (s = e.vBody.length / 3, i = e.vPropellerL.length / 3, n = 0; n < 3; n++)
-                    for (t = 0; t < i; t++) r = (t + n * i + s) * a,
-                        o = 3 * t, c[r + 0] = e.vPropellerL[o + 0], c[r + 1] = e.vPropellerL[o + 1], c[r + 2] =
-                        e.vPropellerL[o + 2],
-                        c[r + 3] = 2 * n + 1;
-                for (s = (e.vBody.length + 3 * e.vPropellerL.length) / 3, i = e.vPropellerR.length / 3,
-                         n = 0; n < 3; n++)
-                    for (t = 0; t < i; t++) r = (t + n * i + s) * a, o = 3 * t, c[r + 0] = e.vPropellerR[o + 0],
-                        c[r + 1] = e.vPropellerR[o + 1], c[r + 2] = e.vPropellerR[o + 2], c[r + 3] = 2 * n + 2;
-                var l, f, u;
-                return l = 3, f = new THREE.InstancedBufferGeometry(), f.maxInstancedCount = l,
-                    u = new THREE.InterleavedBuffer(c, a), f.addAttribute("position", new THREE
-                    .InterleavedBufferAttribute(u, 3, 0)),
-                    f.addAttribute("propeller", new THREE.InterleavedBufferAttribute(u, 1, 3)), f.addAttribute(
-                    "num", new THREE.InstancedBufferAttribute(new Float32Array([0, 1, 2]), 1, true)),
-                    f.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 999), f;
-            },
-            t.prototype.initFace = function () {
-                var t = {
-                        rgba: {
-                            type: "v4",
-                            value: e.C.rgbaToVector4(e.S.COLOR.droneFace, .75)
-                        },
-                        lightColor: {
-                            type: "v3",
-                            value: e.C.rgbToVector3(e.S.COLOR.droneFaceLight)
-                        },
-                        time: {
-                            type: "f",
-                            value: 0
-                        },
-                        shakeSpeed: {
-                            type: "f",
-                            value: 0
-                        },
-                        shakeHeight: {
-                            type: "f",
-                            value: 0
-                        },
-                        rotation: {
-                            type: "f",
-                            value: 0
-                        },
-                        offsetL: {
-                            type: "v3",
-                            value: new THREE.Vector3(0, 0, 0)
-                        },
-                        offsetR: {
-                            type: "v3",
-                            value: new THREE.Vector3(0, 0, 0)
-                        },
-                        offsetScaleL: {
-                            type: "v3",
-                            value: new THREE.Vector3(1, 1, 1)
-                        },
-                        offsetScaleR: {
-                            type: "v3",
-                            value: new THREE.Vector3(1, 1, 1)
-                        },
-                        opacityL: {
-                            type: "f",
-                            value: 1
-                        },
-                        opacityR: {
-                            type: "f",
-                            value: 1
-                        },
-                        matrix: {
-                            type: "m4",
-                            value: new THREE.Matrix4().identity()
-                        }
-                    },
-                    n = new THREE.RawShaderMaterial({
-                        fragmentShader: e.frag.drone_face,
-                        vertexShader: e.vert.drone_face,
-                        blending: THREE.NormalBlending,
-                        uniforms: t,
-                        transparent: !0,
-                        depthTest: !0
-                    }),
-                    r = new THREE.Mesh(this.geometryFace, n);
-                this.meshFace = r, this.materialFace = r.material, this.uniformsFace = r.material.uniforms,
-                    this.container.add(r);
-            },
-            t.prototype.initWire = function () {
-                var t = {
-                        rgba: {
-                            type: "v4",
-                            value: e.C.rgbaToVector4(e.S.COLOR.droneWire, .55)
-                        },
-                        time: {
-                            type: "f",
-                            value: 0
-                        },
-                        shakeSpeed: {
-                            type: "f",
-                            value: 0
-                        },
-                        shakeHeight: {
-                            type: "f",
-                            value: 0
-                        },
-                        rotation: {
-                            type: "f",
-                            value: 0
-                        },
-                        offsetL: {
-                            type: "v3",
-                            value: new THREE.Vector3(0, 0, 0)
-                        },
-                        offsetR: {
-                            type: "v3",
-                            value: new THREE.Vector3(0, 0, 0)
-                        },
-                        offsetScaleL: {
-                            type: "v3",
-                            value: new THREE.Vector3(1, 1, 1)
-                        },
-                        offsetScaleR: {
-                            type: "v3",
-                            value: new THREE.Vector3(1, 1, 1)
-                        },
-                        opacityL: {
-                            type: "f",
-                            value: 1
-                        },
-                        opacityR: {
-                            type: "f",
-                            value: 1
-                        },
-                        matrix: {
-                            type: "m4",
-                            value: new THREE.Matrix4().identity()
-                        }
-                    },
-                    n = new THREE.RawShaderMaterial({
-                        fragmentShader: e.frag.basic_color,
-                        vertexShader: e.vert.drone_wire,
-                        blending: THREE.NormalBlending,
-                        uniforms: t,
-                        transparent: !0,
-                        depthTest: !0
-                    });
-                n.linewidth = 1.5, n.linecap = "round", n.linejoin = "round";
-
-                var r = new THREE.LineSegments(this.geometryWire, n);
-
-                this.meshWire = r, this.materialWire = this.meshWire.material,
-                    this.uniformsWire = r.material.uniforms,
-                    this.container.add(r);
-            }, t;
-    }();
-    e.Drone = new t();
+    var t;
+    !function (e) {
+        e.basic_color = ["precision highp float;", "attribute vec3 position;", "varying vec4 vColor;",
+            "varying vec3 vPosition;", "varying vec3 vWorldPosition;", "uniform vec4 rgba;",
+            "uniform mat4 projectionMatrix;", "uniform mat4 viewMatrix;", "uniform mat4 modelMatrix;",
+            "uniform vec3 cameraPosition;", "void main(void) {", "    vPosition = position;",
+            "    vec4 worldPosition = modelMatrix * vec4(position, 1.0 );",
+            "    vWorldPosition = worldPosition.xyz;", "    vColor = rgba;",
+            "    gl_Position = projectionMatrix * viewMatrix * worldPosition;", "}"
+        ].join("\n");
+    }(t = e.vert || (e.vert = {}));
 }(DRONE || (DRONE = {}));
 
 !function (e) {
-
+    var t;
+    !function (e) {
+        e.basic_color = ["precision highp float;", "varying vec4 vColor;", "varying vec4 vPosition;",
+            "void main(void) {", "    if (vColor.a <= 0.0) discard;", "    gl_FragColor = vColor;", "}"
+        ].join("\n");
+    }(t = e.frag || (e.frag = {}));
 }(DRONE || (DRONE = {}));
 !function (e) {
     var t;
@@ -564,115 +271,272 @@ propellerright= DRONE.preload.result.model.propeller_right,
         ].join("\n");
     }(t = e.vert || (e.vert = {}));
 }(DRONE || (DRONE = {}));
+/*Setup drone*/
 !function (e) {
-    var t;
-    !function (e) {
-        e.CITY_SCALE = 50, e.COLOR = {
-            sky: 133177,
-            skyLight: 16800,
-            face: 1704021,
-            faceLight: 1245246,
-            wire: 480968,
-            wireLight: 38399,
-            point: 38655,
-            particle1: 30719,
-            particle2: 4784105,
-            particle3: 16776136,
-            wind1: 65475,
-            wind2: 3542623,
-            wind3: 11353596,
-            road: 42239,
-            route: 16777215,
-            rain: 11197951,
-            mist: 16777215,
-            flash: 15790320,
-            dark: 0,
-            birdFace: 538706,
-            birdFaceLight: 2007807,
-            birdWire: 12315647,
-            droneFace: 2878,
-            droneFaceLight: 27135,
-            droneWire: 57855
-        }, e.COLOR_GL = {
-            sky: chroma(e.COLOR.sky).gl(),
-            skyLight: chroma(e.COLOR.skyLight).gl(),
-            face: chroma(e.COLOR.face).gl(),
-            faceLight: chroma(e.COLOR.faceLight).gl(),
-            wire: chroma('33cc00').gl(),
-            wireLight: chroma('33cc00').gl()
-        };
-    }(t = e.S || (e.S = {}));
+    class t extends Backbone.Model{
+        constructor(){
+            super();
+        }
+        _onDraw =(n,r)=>{
+            let o, i, a;
+            i = 65 * r;
+            this.uniformsFace.rotation.value += i,
+                this.uniformsWire.rotation.value += i;
+        }
+        initialize(){
+            this.set({
+                COLOR:{
+                    droneFace: '#008bec',
+                    droneFaceLight: 27135,
+                    droneWire: 57855
+                },
+                COLOR_GL:{
+                    face: chroma(1704021).gl(),
+                    faceLight: chroma(1245246).gl(),
+                    wire: chroma('33cc00').gl(),
+                    wireLight: chroma('33cc00').gl()
+                }
+            })
+        }
+        init(){
+            this.initialize();
+            this.container = new THREE.Object3D();
+            this.container.scale.set(50,50,50);
+            this.initGeometry();
+            this.initFace();
+            this.initWire();
+            e.introScene.on("draw", this._onDraw);
+        }
+        initFace(){
+            var t = {
+                    rgba: {
+                        type: "v4",
+                        value: e.Utility.rgbaToVector4(this.get('COLOR').droneFace, .75)
+                    },
+                    lightColor: {
+                        type: "v3",
+                        value: e.Utility.rgbToVector3(this.get('COLOR').droneFaceLight)
+                    },
+                    time: {
+                        type: "f",
+                        value: 0
+                    },
+                    shakeSpeed: {
+                        type: "f",
+                        value: 0
+                    },
+                    shakeHeight: {
+                        type: "f",
+                        value: 0
+                    },
+                    rotation: {
+                        type: "f",
+                        value: 0
+                    },
+                    offsetL: {
+                        type: "v3",
+                        value: new THREE.Vector3(0, 0, 0)
+                    },
+                    offsetR: {
+                        type: "v3",
+                        value: new THREE.Vector3(0, 0, 0)
+                    },
+                    offsetScaleL: {
+                        type: "v3",
+                        value: new THREE.Vector3(1, 1, 1)
+                    },
+                    offsetScaleR: {
+                        type: "v3",
+                        value: new THREE.Vector3(1, 1, 1)
+                    },
+                    opacityL: {
+                        type: "f",
+                        value: 1
+                    },
+                    opacityR: {
+                        type: "f",
+                        value: 1
+                    },
+                    matrix: {
+                        type: "m4",
+                        value: new THREE.Matrix4().identity()
+                    }
+                },
+                n = new THREE.RawShaderMaterial({
+                    fragmentShader: e.frag.drone_face,
+                    vertexShader: e.vert.drone_face,
+                    blending: THREE.NormalBlending,
+                    uniforms: t,
+                    transparent: !0,
+                    depthTest: !0,
+
+                }),
+                r = new THREE.Mesh(this.geometryFace, n);
+            this.meshFace = r, this.materialFace = r.material, this.uniformsFace = r.material.uniforms,
+                this.container.add(r);
+
+        }
+        initWire(){
+            let t = {
+                    rgba: {
+                        type: "v4",
+                        value: e.Utility.rgbaToVector4(this.get('COLOR').droneWire, .55)
+                    },
+                    time: {
+                        type: "f",
+                        value: 0
+                    },
+                    shakeSpeed: {
+                        type: "f",
+                        value: 0
+                    },
+                    shakeHeight: {
+                        type: "f",
+                        value: 0
+                    },
+                    rotation: {
+                        type: "f",
+                        value: 0
+                    },
+                    offsetL: {
+                        type: "v3",
+                        value: new THREE.Vector3(0, 0, 0)
+                    },
+                    offsetR: {
+                        type: "v3",
+                        value: new THREE.Vector3(0, 0, 0)
+                    },
+                    offsetScaleL: {
+                        type: "v3",
+                        value: new THREE.Vector3(1, 1, 1)
+                    },
+                    offsetScaleR: {
+                        type: "v3",
+                        value: new THREE.Vector3(1, 1, 1)
+                    },
+                    opacityL: {
+                        type: "f",
+                        value: 1
+                    },
+                    opacityR: {
+                        type: "f",
+                        value: 1
+                    },
+                    matrix: {
+                        type: "m4",
+                        value: new THREE.Matrix4().identity()
+                    }
+                },
+                n = new THREE.RawShaderMaterial({
+                    fragmentShader: e.frag.basic_color,
+                    vertexShader: e.vert.drone_wire,
+                    blending: THREE.NormalBlending,
+                    uniforms: t,
+                    transparent: !0,
+                    depthTest: !0,
+
+                });
+            n.linewidth = 1.5, n.linecap = "round", n.linejoin = "round";
+
+            var r = new THREE.LineSegments(this.geometryWire, n);
+
+            this.meshWire = r, this.materialWire = this.meshWire.material,
+                this.uniformsWire = r.material.uniforms,
+                this.container.add(r);
+        }
+        initGeometry(){
+            var t = e.preload.result.model.drone,
+                n = e.preload.result.model.propeller_left,
+                r = e.preload.result.model.propeller_right,
+                o = new THREE.BufferGeometry(),
+                i = new THREE.BufferGeometry(),
+                a = new THREE.BufferGeometry();
+            o.addAttribute("position", new THREE.BufferAttribute(new Float32Array(t.v), 3)),
+                i.addAttribute("position", new THREE.BufferAttribute(new Float32Array(n.v), 3)),
+                a.addAttribute("position", new THREE.BufferAttribute(new Float32Array(r.v), 3)),
+                o.setIndex(new THREE.BufferAttribute(new Uint32Array(t.fv), 1)), i.setIndex(new THREE
+                .BufferAttribute(new Uint32Array(n.fv), 1)),
+                a.setIndex(new THREE.BufferAttribute(new Uint32Array(r.fv), 1)), o.computeVertexNormals(),
+                i.computeVertexNormals(), a.computeVertexNormals();
+            var s = -.01;
+            o.translate(0, s, 0), i.translate(0, s, 0), a.translate(0, s, 0), this.geometryFace = this
+                .createGeometryFace({
+                    vBody: o.attributes.position.array,
+                    vPropellerL: i.attributes.position.array,
+                    vPropellerR: a.attributes.position.array,
+                    iBody: t.fv,
+                    iPropellerL: n.fv,
+                    iPropellerR: r.fv
+                }), this.geometryWire = this.createGeometryWire({
+                vBody: new THREE.EdgesGeometry(o).attributes.position.array,
+                vPropellerL: new THREE.EdgesGeometry(i).attributes.position.array,
+                vPropellerR: new THREE.EdgesGeometry(a).attributes.position.array
+            });
+        }
+        createGeometryFace(e){
+            var t, n, r, o, i, a, s, c, l, f;
+            for (a = 4, i = (e.vBody.length + 3 * e.vPropellerL.length + 3 * e.vPropellerR.length) / 3,
+                     l = new Float32Array(i * a), i = e.iBody.length + 3 * e.iPropellerL.length + 3 * e
+                .iPropellerR.length,
+                     f = new Uint32Array(i), i = e.vBody.length / 3, t = 0; t < i; t++) r = t * a, o = 3 * t,
+                l[r + 0] = e.vBody[o + 0], l[r + 1] = e.vBody[o + 1], l[r + 2] = e.vBody[o + 2],
+                l[r + 3] = 0;
+            for (i = e.iBody.length, t = 0; t < i; t++) f[t] = e.iBody[t];
+            for (s = e.vBody.length / 3, i = e.vPropellerL.length / 3, n = 0; n < 3; n++)
+                for (t = 0; t < i; t++) r = (t + n * i + s) * a,
+                    o = 3 * t, l[r + 0] = e.vPropellerL[o + 0], l[r + 1] = e.vPropellerL[o + 1], l[r + 2] =
+                    e.vPropellerL[o + 2],
+                    l[r + 3] = 2 * n + 1;
+            for (c = e.iBody.length, i = e.iPropellerL.length, n = 0; n < 3; n++) {
+                for (t = 0; t < i; t++) r = t + n * i + c, f[r] = e.iPropellerL[t] + s;
+                s += e.vPropellerL.length / 3;
+            }
+            for (s = (e.vBody.length + 3 * e.vPropellerL.length) / 3, i = e.vPropellerR.length / 3,
+                     n = 0; n < 3; n++)
+                for (t = 0; t < i; t++) r = (t + n * i + s) * a, o = 3 * t, l[r + 0] = e.vPropellerR[o + 0],
+                    l[r + 1] = e.vPropellerR[o + 1], l[r + 2] = e.vPropellerR[o + 2], l[r + 3] = 2 * n + 2;
+            for (c = e.iBody.length + 3 * e.iPropellerL.length, i = e.iPropellerR.length, n = 0; n <
+            3; n++) {
+                for (t = 0; t < i; t++) r = t + n * i + c, f[r] = e.iPropellerR[t] + s;
+                s += e.vPropellerR.length / 3;
+            }
+            var u, h, v;
+            return u = 3, h = new THREE.InstancedBufferGeometry(), h.maxInstancedCount = u,
+                h.setIndex(new THREE.BufferAttribute(new Uint32Array(f), 1)), v = new THREE
+                .InterleavedBuffer(l, a),
+                h.addAttribute("position", new THREE.InterleavedBufferAttribute(v, 3, 0)), h.addAttribute(
+                "propeller", new THREE.InterleavedBufferAttribute(v, 1, 3)),
+                h.addAttribute("num", new THREE.InstancedBufferAttribute(new Float32Array([0, 1, 2]), 1,
+                    true)),
+                h.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 999), h;
+        }
+        createGeometryWire(e){
+            var t, n, r, o, i, a, s, c;
+            for (a = 4, i = (e.vBody.length + 3 * e.vPropellerL.length + 3 * e.vPropellerR.length) / 3,
+                     c = new Float32Array(i * a), i = e.vBody.length / 3, t = 0; t < i; t++) r = t * a,
+                o = 3 * t, c[r + 0] = e.vBody[o + 0], c[r + 1] = e.vBody[o + 1], c[r + 2] = e.vBody[o + 2],
+                c[r + 3] = 0;
+            for (s = e.vBody.length / 3, i = e.vPropellerL.length / 3, n = 0; n < 3; n++)
+                for (t = 0; t < i; t++) r = (t + n * i + s) * a,
+                    o = 3 * t, c[r + 0] = e.vPropellerL[o + 0], c[r + 1] = e.vPropellerL[o + 1], c[r + 2] =
+                    e.vPropellerL[o + 2],
+                    c[r + 3] = 2 * n + 1;
+            for (s = (e.vBody.length + 3 * e.vPropellerL.length) / 3, i = e.vPropellerR.length / 3,
+                     n = 0; n < 3; n++)
+                for (t = 0; t < i; t++) r = (t + n * i + s) * a, o = 3 * t, c[r + 0] = e.vPropellerR[o + 0],
+                    c[r + 1] = e.vPropellerR[o + 1], c[r + 2] = e.vPropellerR[o + 2], c[r + 3] = 2 * n + 2;
+            var l, f, u;
+            return l = 3, f = new THREE.InstancedBufferGeometry(), f.maxInstancedCount = l,
+                u = new THREE.InterleavedBuffer(c, a), f.addAttribute("position", new THREE
+                .InterleavedBufferAttribute(u, 3, 0)),
+                f.addAttribute("propeller", new THREE.InterleavedBufferAttribute(u, 1, 3)), f.addAttribute(
+                "num", new THREE.InstancedBufferAttribute(new Float32Array([0, 1, 2]), 1, true)),
+                f.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 999), f;
+        }
+    }
+    e.Drone = new t();
 }(DRONE || (DRONE = {}));
 
-!function (e) {
-    var t;
-    !function (e) {
-        function t(e, t) {
-            void 0 === t && (t = "");
-            var n, r, o;
-            for (r = e.concat(), o = r.length, n = 0; n < o; n++) r[n] = "change:" + t + r[n];
-            return r.join(" ");
-        }
-
-        function n(e, t) {
-            void 0 === t && (t = "");
-            var n, r, o;
-            for (r = e.concat(), o = r.length, n = 0; n < o; n++) r[n] = t + r[n];
-            return r.join(" ");
-        }
-
-        function r(e, t, n) {
-            var r = 1 - n;
-            return chroma.gl(e[0] * r + t[0] * n, e[1] * r + t[1] * n, e[2] * r + t[2] * n).hex();
-        }
-
-        function o(e, t, n, r) {
-            var o = 1 - r;
-            n.x = e[0] * o + t[0] * r, n.y = e[1] * o + t[1] * r, n.z = e[2] * o + t[2] * r;
-        }
-
-        function i(e, t) {
-            var n = chroma(e).gl();
-            t.x = n[0], t.y = n[1], t.z = n[2];
-        }
-
-        function a(e, t) {
-            var n = chroma(e).alpha(t).gl();
-            return new THREE.Vector4(n[0], n[1], n[2], n[3]);
-        }
-
-        function s(e) {
-            var t = chroma(e).gl();
-            return new THREE.Vector3(t[0], t[1], t[2]);
-        }
-
-        e.joinChangeNames = t, e.joinNames = n, e.colorTransform = r, e.colorTransformToVector4 = o,
-            e.setRGBToVector4 = i, e.rgbaToVector4 = a, e.rgbToVector3 = s;
-    }(t = e.C || (e.C = {}));
-}(DRONE || (DRONE = {}));
-
-!function (e) {
-    var t;
-    !function (e) {
-        e.basic_color = ["precision highp float;", "attribute vec3 position;", "varying vec4 vColor;",
-            "varying vec3 vPosition;", "varying vec3 vWorldPosition;", "uniform vec4 rgba;",
-            "uniform mat4 projectionMatrix;", "uniform mat4 viewMatrix;", "uniform mat4 modelMatrix;",
-            "uniform vec3 cameraPosition;", "void main(void) {", "    vPosition = position;",
-            "    vec4 worldPosition = modelMatrix * vec4(position, 1.0 );",
-            "    vWorldPosition = worldPosition.xyz;", "    vColor = rgba;",
-            "    gl_Position = projectionMatrix * viewMatrix * worldPosition;", "}"
-        ].join("\n");
-    }(t = e.vert || (e.vert = {}));
-}(DRONE || (DRONE = {}));
-
-!function (e) {
-    var t;
-    !function (e) {
-        e.basic_color = ["precision highp float;", "varying vec4 vColor;", "varying vec4 vPosition;",
-            "void main(void) {", "    if (vColor.a <= 0.0) discard;", "    gl_FragColor = vColor;", "}"
-        ].join("\n");
-    }(t = e.frag || (e.frag = {}));
-}(DRONE || (DRONE = {}));
 
 //Scene Manager section
 !function (e) {
@@ -680,7 +544,6 @@ propellerright= DRONE.preload.result.model.propeller_right,
         constructor() {
             super();
         }
-
         updateCamera = () => {
             if (this.get('cameraMode') == "globalView") {
                 this.camera.position.y = 450;
@@ -702,7 +565,6 @@ propellerright= DRONE.preload.result.model.propeller_right,
             }
 
         }
-
         init() {
 
 
@@ -829,7 +691,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
             let target = this.get('animationPoints');
             if(target.length >0){
-               let speed = 0.5;
+                let speed = 0.5;
                 let distance = e.Drone.container.position.distanceTo(target[0])
                 let dronePos = new THREE.Vector3();
                 let targetPos = new THREE.Vector3();
@@ -845,7 +707,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
                         e.sceneManager.on('draw', this.animateRotation);
                         e.sceneManager.off('draw', this.animateTranslation);
                     }
-                   else{
+                    else{
                         e.sceneManager.off('draw', this.animateTranslation);
                     }
 
@@ -900,7 +762,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
                 heuristic: PF.Heuristic.euclidean
             });
 
-             let targetClone = JSON.parse(JSON.stringify(targets));
+            let targetClone = JSON.parse(JSON.stringify(targets));
             var self = this;
             returnMinPath(srcIndex,targetClone);
 
@@ -954,14 +816,14 @@ propellerright= DRONE.preload.result.model.propeller_right,
                     let temp =[];
                     let lgeometry = new THREE.Geometry();
                     _paths.forEach(p => {
-                       if(p.paths.length >0){
-                           p.paths.forEach(path=>{
-                               let v3 = new THREE.Vector3(path[0], path[1], path[2])
-                               lgeometry.vertices.push(new THREE.Vector3(path[0], path[1], path[2]));
-                               v3.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5 * Math.PI);
-                               temp.push(v3)
-                           })
-                       }
+                        if(p.paths.length >0){
+                            p.paths.forEach(path=>{
+                                let v3 = new THREE.Vector3(path[0], path[1], path[2])
+                                lgeometry.vertices.push(new THREE.Vector3(path[0], path[1], path[2]));
+                                v3.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5 * Math.PI);
+                                temp.push(v3)
+                            })
+                        }
 
                     });
                     let line = new THREE.Line(lgeometry, lmaterial);
@@ -969,7 +831,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
                     this.set({animationPoints:temp});
                     this.initAnimation();
-                //
+                    //
                 }
             }
 
@@ -1172,7 +1034,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
                             if (_leftBottomDown != null) neighbours.push(_leftBottomDown);
 
                             let objects = e.sceneManager.scene.getObjectByName("building");
-                           // console.log(objects)
+                            // console.log(objects)
                             for (let i = 0; i < objects.children.length; i++) {
                                 var bbox = new THREE.Box3().setFromObject(objects.children[i]);
                                 // console.log(bbox);
@@ -1225,54 +1087,7 @@ propellerright= DRONE.preload.result.model.propeller_right,
                 h_world,
                 d_world
             );
-           return matrix;
-            // let nodes = this.projectMatrix(matrix);
-            // this.set({matrixData: matrix})
-            // this.on('change:matrixData', this._updateMatrix)
-            // var self = this;
-            // nodes.forEach(node => {
-            //     var objects = e.sceneManager.scene.getObjectByName("building");
-            //     let material = new THREE.MeshBasicMaterial({
-            //         color: 0xff0000
-            //     });
-            //     for (let i = 0; i < objects.children.length; i++) {
-            //         var bbox = new THREE.Box3().setFromObject(objects.children[i]);
-            //         // console.log(bbox);
-            //
-            //         if (
-            //             bbox.containsPoint({
-            //                 x: node.x,
-            //                 y: node.y,
-            //                 z: node.z
-            //             })
-            //         ) {
-            //             material = new THREE.MeshBasicMaterial({
-            //                 color: 0xffff00,
-            //                 wireframe: true
-            //             });
-            //             //Place some obstacles at given cells
-            //             let myMatrix = self.get('matrixData')
-            //             myMatrix[node.zGrid][node.yGrid][node.xGrid].walkable = 1;
-            //             self.set({matrixData: myMatrix});
-            //             self.trigger('change:matrixData');
-            //             break;
-            //         }
-            //     }
-            //
-            //     let geometry = new THREE.BoxGeometry(1, 1, 1);
-            //
-            //     let cube = new THREE.Mesh(geometry, material);
-            //     cube.name = "grid";
-            //     cube.position.x = node.x;
-            //     cube.position.y = node.y;
-            //     cube.position.z = node.z;
-            //     self.matrixContainer.add(cube);
-            //
-            // });
-            // this.container.add(this.matrixContainer);
-            // nodes = this.updateNodes(matrix, nodes);
-            // this.nodes = nodes;
-            //this.initPaths();
+            return matrix;
 
         }
         drawBuilding = (buildings, CENTER_LON, CENTER_LAT, zoom) => {
@@ -1503,6 +1318,11 @@ propellerright= DRONE.preload.result.model.propeller_right,
     e.environment = new t();
 }(DRONE || (DRONE = {}));
 
+
+
+/**
+ * Drone controller section
+ */
 //Drone controller
 !function (e) {
     class t extends Backbone.Model {
@@ -1638,25 +1458,131 @@ propellerright= DRONE.preload.result.model.propeller_right,
 
     e.droneController = new t();
 }(DRONE || (DRONE = {}));
+
+/*Startup scene*/
 !function (e) {
-    var t = function () {
-        function t() {
-            var t = this;
-            this._onPreload = function () {
-                createjs.Tween.get(t).wait(100).call(t._onPreload2);
-            }, this._onPreload2 = function () {
-
-                e.sceneManager.init();
-                e.droneController.init();
-                $('#notification').hide();
-            };
+    class t extends Backbone.Model{
+        constructor(){
+            super();
         }
+        _onWindowResize=()=>{
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.camera.aspect = window.innerWidth/window.innerHeight;
+            this.camera.updateProjectionMatrix();
+        }
+        _onRAF =(t)=>{
+            let r = t.delta / 1e2;
+            this.time += r;
+            this.trigger("draw", this.time, r);
+            this.renderer.render(this.scene, this.camera)
+        }
+        _addCube =()=>{
+            let geometry = new THREE.BoxGeometry( 1, 1, 1 );
+            let material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+            let cube = new THREE.Mesh( geometry, material );
+            this.scene.add( cube );
+        }
+        isComplete (){
+            createjs.Ticker.removeEventListener("tick", this._onRAF);
+            $('#three').html(null);
+            this.trigger('complete');
+        }
+        init(){
+            this.scene = new THREE.Scene();
+            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1e3);
+            this.camera.position.z =5;
+            this.camera.position.y =2;
+            this.camera.lookAt(0,0,0);
+            this.renderer = new THREE.WebGLRenderer({antialias:true, alpha:true})
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            $('#three').append(this.renderer.domElement);
+            window.addEventListener('resize', this._onWindowResize);
+            createjs.Ticker.addEventListener("tick", this._onRAF);
+            e.Drone.init();
+            let droneClone = e.Drone.container.clone();
+            let droneClone1 = e.Drone.container.clone();
+            let droneClone2 = e.Drone.container.clone();
+            droneClone.position.set(-3,0,3);
+            droneClone1.position.set(3,0,3);
+            droneClone2.position.set(0,3,3);
+            this.scene.add(droneClone);
+            this.scene.add(droneClone1);
+            this.scene.add(droneClone2);
+            createjs.Tween.get(droneClone.position).to({x:0,y:0,z:0},3000);
+            createjs.Tween.get(droneClone1.position).to({x:0,y:0,z:0},3000);
+            createjs.Tween.get(droneClone2.position).to({x:0,y:0,z:0},3000);
+            this.set({isComplete:false});
+            this.on('change:isComplete', this.isComplete, this)
+        }
+    }
+    e.introScene = new t();
+}(DRONE || (DRONE = {}));
+!function (e) {
+    class t extends Backbone.Model{
+        init(){
 
-        return t.prototype.init = function (t) {
-            e.preload.on("complete", this._onPreload), e.preload.load();
-        }, t;
-    }();
-    e.index = new t();
+            let svg = d3.select("#altitude-container")
+                .append("svg")
+                .attr("width", 50)
+                .attr("height", 210);
+            let scale = d3.scaleLinear()
+                .domain([0, 60])
+                .range([180, 0]);
+            var y_axis = d3.axisRight()
+                .ticks(5)
+                .scale(scale);
+            svg.append("g")
+                .attr("transform", "translate(0, 10)")
+                .call(y_axis);
+            svg.append('line')
+                .attr('x1',0)
+                .attr('y1',20)
+                .attr('x2', 30)
+                .attr('y2',20)
+                .style('stroke', 'aqua')
+            svg.append('text')
+                .attr('x', 0)
+                .attr('y', 210)
+                .text("Altitude")
+            $('.radar').show();
+            $('#controller').show();
+
+
+        }
+    }
+    e.layOut = new t();
 }(DRONE || (DRONE = {}));
 
+
+/*Main Function entry*/
+!function (e) {
+    class t extends Backbone.Model {
+        constructor(){
+            super();
+        }
+
+        onComplete(){
+            var _this = this;
+            $('#loader').fadeOut(2000, _this.initScene);
+        }
+        initScene(){
+            e.introScene.init();
+            e.layOut.init();
+            e.introScene.on('complete', this.mainScene, this)
+        }
+        mainScene(){
+            console.log('start main scene....')
+            e.sceneManager.init();
+        }
+        init() {
+            e.CocoSsd.init();
+            e.preload.load();
+            e.preload.on('complete', this.onComplete, this);
+        }
+    }
+
+    e.index = new t();
+}(DRONE || (DRONE = {}))
 DRONE.index.init();
+

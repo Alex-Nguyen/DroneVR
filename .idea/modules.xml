@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/DroneVR.iml" filepath="$PROJECT_DIR$/.idea/DroneVR.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/AIVRDrone.iml" filepath="$PROJECT_DIR$/.idea/AIVRDrone.iml" />
     </modules>
   </component>
 </project>

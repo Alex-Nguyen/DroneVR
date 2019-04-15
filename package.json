@@ -1,0 +1,22 @@
+{
+  "name": "aivrdrone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack src/js/index.js dist/bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  },
+  "author": "Vinh Nguyen, Texas Tech University",
+  "license": "ISC",
+  "dependencies": {
+    "backbone": "^1.4.0",
+    "createjs-module": "^0.8.3",
+    "jquery": "^3.3.1",
+    "preloadjs": "^1.0.1",
+    "underscore": "^1.9.1"
+  }
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="src/js/three.min.js"></script>
+
+
+    <style>
+
+    </style>
+</head>
+<body>
+</body>
+<script>
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    var textureLoader = new THREE.TextureLoader();
+    var sprite1 = textureLoader.load('./src/assets/images/particle1.png');
+    var geometry = new THREE.BufferGeometry();
+    // create a simple square shape. We duplicate the top left and bottom right
+    // vertices because each vertex needs to appear once per triangle.
+    var vertices = new Float32Array([
+        -1.0, -1.0, 1.0,
+        1.0, -1.0, 1.0,
+        1.0, 1.0, 1.0,
+
+        1.0, 1.0, 1.0,
+        -1.0, 1.0, 1.0,
+        -1.0, -1.0, 1.0
+    ]);
+
+    // itemSize = 3 because there are 3 values (components) per vertex
+    geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    var material = new THREE.PointsMaterial({
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        size: 0.4,
+        map: sprite1,
+        opacity:0.4,
+        depthTest: false
+
+    });
+    var mesh = new THREE.Points(geometry, material);
+    scene.add(mesh)
+    camera.position.z = 2;
+    camera.position.x = -3;
+    camera.lookAt(0, 0, 0);
+
+    var animate = function () {
+        requestAnimationFrame(animate);
+
+        renderer.render(scene, camera);
+    };
+
+    animate();
+</script>
+
+</html>
