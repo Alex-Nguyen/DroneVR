@@ -60,6 +60,48 @@ var DRONE; //Global  namespace
 }(DRONE || (DRONE = {}));
 
 /**
+ * Object detection controller
+ */
+!function (e) {
+    let t = Backbone.Model.extend({
+        init:function () {
+            //this.on('cocoSsd:ready', this.triggerObjectDetection, this);
+            this.canvas = document.querySelector('#canvas_scene')
+        },
+        triggerOffObjectDetection:function(){
+            e.AnimationController.off('draw', this._onDraw, this)
+        },
+        triggerObjectDetection:function(){
+            e.AnimationController.on('draw', this._onDraw, this)
+        },
+        _onDraw:function () {
+            e.mainScene.model.detect(this.canvas).then(predictions => {
+                $('.detectObject').remove();
+                if(predictions.length >0){
+                    predictions.forEach(predict=>{
+                        if(predict.class!=="airplane" &&predict.class!=="kite"){
+                            let div = document.createElement('div')
+                            div.className='detectObject';
+                            div.style.left = predict.bbox[0] +"px";
+                            div.style.top = predict.bbox[1]+"px";
+                            div.style.width = predict.bbox[2]+"px";
+                            div.style.height = predict.bbox[3]+"px";
+                            div.setAttribute('name',predict.class );
+                            let text = document.createElement('span')
+                            text.innerHTML = predict.class;
+                            div.appendChild(text);
+                            document.body.appendChild(div)
+                        }
+
+                    })
+                }
+            });
+        }
+    });
+    e.ObjectDetectionController = new t();
+}(DRONE || (DRONE = {}));
+
+/**
  * Construct the drone model
  * To get this model => access to its container
  * To simulate wings rotation => activate the _onDraw function
@@ -335,68 +377,85 @@ var DRONE; //Global  namespace
     e.droneModel = new t();
 }(DRONE || (DRONE = {}));
 
+/**
+ * Path Controller
+ */
 !function (e) {
     let t = Backbone.Model.extend({
-        defaults:{
-            paths:null,
-            isPathReady:false,
-            currentIndex:0,
-            currentPaths:null,
-            currentPathIndex:0
+        defaults: {
+            paths: null,
+            isPathReady: false,
+            currentIndex: 0,
+            nextIndex:1,
+            currentPaths: null,
+            currentPathIndex: 0,
+            nextPathIndex:1
         },
-        init:function(){
+        init: function () {
             let _procededPaths = this.get('paths');
-            let _tempPaths =[];
-            _procededPaths.forEach(p=>{
-                    if(p.paths.length >0){
-                        _tempPaths.push(p);
-                    }
+            let _tempPaths = [];
+            _procededPaths.forEach(p => {
+                if (p.paths.length > 0) {
+                    _tempPaths.push(p);
+                }
             });
             _tempPaths.shift();
-            this.set({paths:_tempPaths});
+            this.set({paths: _tempPaths});
             let firstPath = this.get('paths')[this.get('currentIndex')];
-            this.set({currentPaths:firstPath});
-            this.set({isPathReady:true})
+            this.set({currentPaths: firstPath});
+            this.set({isPathReady: true})
         },
-        getNext:function () {
-            //If last point => first update
+        getCurrent:function(){
+            let point = new THREE.Vector3();
+            let currentPathIndex = this.get('currentPathIndex');
+            let currentValue = this.get('currentPaths').paths[currentPathIndex];
+            point.x = currentValue[0];
+            point.y = currentValue[1];
+            point.z = currentValue[2];
+            point.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5 * Math.PI);
+            return point;
+        },
+        getNext: function () {
             let currentPathIndex = this.get('currentPathIndex');
             let currentIndex = this.get('currentIndex');
             let paths = this.get('currentPaths');
-            if(paths.paths===null){
+            if (paths.paths === null) {
                 return null
             }
-            if(paths.paths.length===0||currentPathIndex===paths.paths.length){
-                    currentIndex +=1;
-                currentPathIndex =0;
-                if(currentIndex ===this.get('paths').length){
-                    console.log("End of road")
+            if (currentPathIndex === paths.paths.length) {
+                this.set({goalReached:currentIndex})
+                currentIndex += 1;
+                currentPathIndex = 0;
+                if (currentIndex === this.get('paths').length) {
+                    e.layOut.trigger('isFinished:true');
+                    console.log("End of route");
                     return null;
                 }
                 let currentPaths = this.get('paths')[currentIndex];
-                this.set({currentIndex:currentIndex});
-                this.set({currentPathIndex:currentPathIndex});
-                this.set({currentPaths:currentPaths});
+                this.set({currentIndex: currentIndex});
+                this.set({currentPathIndex: currentPathIndex});
+                this.set({currentPaths: currentPaths});
                 return this.getNext();
             }
-            if(this.get('isPathReady')){
+            if (this.get('isPathReady')) {
                 let currentValue = this.get('currentPaths').paths[currentPathIndex];
                 let point = new THREE.Vector3();
-                if(this.get('currentPaths').paths.length===0) {return this.getNext();}
-                else{
+                if (this.get('currentPaths').paths.length === 0) {
+                    return this.getNext();
+                } else {
                     point.x = currentValue[0];
                     point.y = currentValue[1];
                     point.z = currentValue[2];
                     point.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5 * Math.PI);
-                    currentPathIndex+=1;
-                    this.set({currentPathIndex:currentPathIndex});
+                    currentPathIndex += 1;
+                    this.set({currentPathIndex: currentPathIndex});
                 }
 
                 return point;
 
             }
         }
-        
+
     });
     e.PathController = new t();
 }(DRONE || (DRONE = {}));
@@ -432,6 +491,7 @@ var DRONE; //Global  namespace
                 this.on('target:ready', this.initPaths);
                 this.on('paths:ready', this.startAnimation);
                 this.on('camera:followDrone', this.registerCamToDrone);
+                this.trigger('cocoSsd:start');
                 this.scene = new THREE.Scene();
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e3);
                 this.camera.position.z = 15;
@@ -439,6 +499,7 @@ var DRONE; //Global  namespace
                 this.camera.lookAt(0, 0, 0);
                 this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: !0});
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.domElement.id ='canvas_scene';
                 $('#three').append(this.renderer.domElement);
 
                 this.addPlane();
@@ -455,8 +516,8 @@ var DRONE; //Global  namespace
 
             },
             updateNavController: function () {
-                let speed = 0.08;
-                let rotatespeed = 0.01;
+                let speed = 0.5;
+                let rotatespeed = 0.03;
                 e.layOut.get('navMouseLeftClicked') === true ? this.onMoveLeft(speed) : null;
                 e.layOut.get('navMouseRightClicked') === true ? this.onMoveRight(speed) : null;
                 e.layOut.get('navMouseTopClicked') === true ? this.onMoveUp(speed) : null;
@@ -508,28 +569,26 @@ var DRONE; //Global  namespace
                 this.set({dronePos: this.droneClone.position});
                 this.trigger('dronePos:update');
             },
-            onRotateLeft: function (speed) {
-                this.droneClone.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), speed);
+            onRotateLeft: function (rotatespeed) {
+                this.droneClone.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), rotatespeed);
             },
-            onRotateRight: function (speed) {
-                this.droneClone.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), -speed);
+            onRotateRight: function (rotatespeed) {
+                this.droneClone.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), -rotatespeed);
             },
             onRotateUp: function (rotatespeed) {
             },
             onRotateDown: function (rotatespeed) {
             },
+
             registerCamToDrone: function () {
                 e.AnimationController.on('draw', this.cameraFollowDrone, this);
             },
+
             cameraFollowDrone: function () {
                 let relativeCameraOffset = new THREE.Vector3(0, 0.03, -0.05);
                 var cameraOffset = relativeCameraOffset.applyMatrix4(
                     this.droneClone.matrixWorld
                 );
-
-                // this.camera.position.x = cameraOffset.x;
-                // this.camera.position.y = cameraOffset.y;
-                // this.camera.position.z = cameraOffset.z;
                 this.camera.aspect = window.innerWidth / window.innerHeight;
                 this.camera.updateProjectionMatrix();
                 this.camera.lookAt(this.droneClone.position);
@@ -539,7 +598,8 @@ var DRONE; //Global  namespace
             },
             startAnimation: function () {
                 this.trigger('camera:followDrone');
-                this.set({currentPoint:e.PathController.getNext()})
+
+                this.set({currentPoint: e.PathController.getNext()})
                 this.initQuaternion(this.get('currentPoint'));
                 e.AnimationController.on('draw', this.animateRotation, this);
             },
@@ -549,16 +609,17 @@ var DRONE; //Global  namespace
 
             },
             resumeAnimation: function () {
-                this.startAnimation();
+                this.initQuaternion(this.get('currentPoint'));
+                e.AnimationController.on('draw', this.animateRotation, this);
             },
             animateRotation: function () {
-                    if (this.droneClone.quaternion.angleTo(this.get('quaternion')) < 0.1) {
-                        e.AnimationController.off('draw', this.animateRotation);
-                        this.startPos = new THREE.Vector3();
-                        this.startPos.copy(this.droneClone.position);
-                        e.AnimationController.on('draw', this.animateTranslation, this);
-                    }
-                    this.droneClone.quaternion.rotateTowards(this.get('quaternion'), 0.05);
+                if (this.droneClone.quaternion.angleTo(this.get('quaternion')) < 0.1) {
+                    e.AnimationController.off('draw', this.animateRotation);
+                    this.startPos = new THREE.Vector3();
+                    this.startPos.copy(this.droneClone.position);
+                    e.AnimationController.on('draw', this.animateTranslation, this);
+                }
+                this.droneClone.quaternion.rotateTowards(this.get('quaternion'), 0.05);
             },
             animateTranslation: function () {
 
@@ -574,8 +635,8 @@ var DRONE; //Global  namespace
                     let direction = targetPos.sub(dronePos).normalize();
                     if (distance < 0.5) {
                         let nextPoint = e.PathController.getNext();
-                        this.set({currentPoint:nextPoint})
-                        if (nextPoint !=null) {
+                        this.set({currentPoint: nextPoint})
+                        if (nextPoint != null) {
                             this.initQuaternion(nextPoint);
                             e.AnimationController.on('draw', this.animateRotation, this);
                             e.AnimationController.off('draw', this.animateTranslation);
@@ -768,8 +829,14 @@ var DRONE; //Global  namespace
                     });
             },
             async initCoCoSsd() {
+                $('#intro').show();
+                $('#intro').html("MODEL IS LOADING...")
                 const model = await cocoSsd.load();
                 this.model = await model;
+                e.ObjectDetectionController.init();
+                e.ObjectDetectionController.trigger('cocoSsd:ready');
+                $('#intro').html("MODEL IS LOADED");
+                $('#intro').fadeOut(2000);
             },
             async getOSM() {
                 let url = "./src/assets/model/map_data.xml";
@@ -1001,15 +1068,13 @@ var DRONE; //Global  namespace
                     let targets = this.targetContainer.children.map(t => {
                         return t.position
                     });
-                    console.log(targets)
                     targets.unshift(DronePos);
-                    console.log(targets)
                     let _paths = this.travelingSaleMan(droneIndex, targets);
                     if (_paths.length > 0) {
 
 
                         let temp = [];
-                        let normalPaths =[];
+                        let normalPaths = [];
                         _paths.forEach(p => {
                             if (p.paths.length > 0) {
                                 p.paths.forEach(path => {
@@ -1069,12 +1134,12 @@ var DRONE; //Global  namespace
                             color: 0xff0000
                         });
                         var lgeometry = new THREE.Geometry();
-                        temp.forEach(d=>{
+                        temp.forEach(d => {
                             lgeometry.vertices.push(d)
                         });
 
                         var lnormalGeo = new THREE.Geometry();
-                        normalPaths.forEach(d=>{
+                        normalPaths.forEach(d => {
                             lnormalGeo.vertices.push(d)
                         });
 
@@ -1084,7 +1149,7 @@ var DRONE; //Global  namespace
                         this.scene.add(lineNormal);
                         this.set({animationPoints: temp});
                         this.set({savedPath: _paths});
-                        e.PathController.set({paths:_paths});
+                        e.PathController.set({paths: _paths});
                         e.PathController.init();
                         this.trigger('paths:ready')
 
@@ -1365,14 +1430,17 @@ var DRONE; //Global  namespace
     class t extends Backbone.Model {
         init() {
             this.set({
-                navMouseCenterClicked: false//Default auto
+                navMouseCenterClicked: false,
+                cocoButton:false
             });
+            var _this = this;
             this.on('change:navMouseCenterClicked', this.onChangeStartStop);
             e.mainScene.on('paths:ready', this.updateSpinner, this);
             e.mainScene.on('dronePos:update', this._updateAltitude, this);
             e.PathController.on('change:isPathReady', this.generateSVG, this);
-            e.PathController.on('change:currentIndex', this.updateLine, this);
+            e.PathController.on('change:goalReached', this.updateLine, this);
             this.on('currentPath:ready', this.updateLine);
+            this.on('isFinished:true', this._isFinised)
             let svg = d3.select("#altitude-container")
                 .append("svg")
                 .attr("width", 50)
@@ -1403,36 +1471,52 @@ var DRONE; //Global  namespace
             $('#controller').fadeIn(2000);
             $('#altitude-container').fadeIn(2000);
 
-            $('#m-top').on('mousedown', this._navTopMouseDown)
-            $('#m-top').on('mouseup', this._navTopMouseUp)
-            $('#m-forward').on('mousedown', this._navTopFMouseDown)
-            $('#m-forward').on('mouseup', this._navTopFMouseUp)
-            $('#m-backward').on('mousedown', this._navTopBMouseDown)
-            $('#m-backward').on('mouseup', this._navTopBMouseUp)
-            $('#m-bottom').on('mousedown', this._navBottomMouseDown)
-            $('#m-bottom').on('mouseup', this._navBottomMouseUp)
-            $('#m-left').on('mousedown', this._navLeftMouseDown)
-            $('#m-left').on('mouseup', this._navLeftMouseUp)
-            $('#m-right').on('mousedown', this._navRightMouseDown)
-            $('#m-right').on('mouseup', this._navRightMouseUp)
-            $('#m-center').on('click', this._navCenterMouseDown)
-
-            $('#r-top').on('mousedown', this._rotTopMouseDown)
-            $('#r-top').on('mouseup', this._rotTopMouseUp)
-            $('#r-bottom').on('mousedown', this._rotBottomMouseDown)
-            $('#r-bottom').on('mouseup', this._rotBottomMouseUp)
-            $('#r-left').on('mousedown', this._rotLeftMouseDown)
-            $('#r-left').on('mouseup', this._rotLeftMouseUp)
-            $('#r-right').on('mousedown', this._rotRightMouseDown)
-            $('#r-right').on('mouseup', this._rotRightMouseUp)
+            $('#m-top').on('mousedown', this._navTopMouseDown);
+            $('#m-top').on('mouseup', this._navTopMouseUp);
+            $('#m-forward').on('mousedown', this._navTopFMouseDown);
+            $('#m-forward').on('mouseup', this._navTopFMouseUp);
+            $('#m-backward').on('mousedown', this._navTopBMouseDown);
+            $('#m-backward').on('mouseup', this._navTopBMouseUp);
+            $('#m-bottom').on('mousedown', this._navBottomMouseDown);
+            $('#m-bottom').on('mouseup', this._navBottomMouseUp);
+            $('#m-left').on('mousedown', this._navLeftMouseDown);
+            $('#m-left').on('mouseup', this._navLeftMouseUp);
+            $('#m-right').on('mousedown', this._navRightMouseDown);
+            $('#m-right').on('mouseup', this._navRightMouseUp);
+            $('#m-center').on('click', this._navCenterMouseDown);
+            $('#coco').on('click', this._cocoButtonClicked);
+            $('#r-top').on('mousedown', this._rotTopMouseDown);
+            $('#r-top').on('mouseup', this._rotTopMouseUp);
+            $('#r-bottom').on('mousedown', this._rotBottomMouseDown);
+            $('#r-bottom').on('mouseup', this._rotBottomMouseUp);
+            $('#r-left').on('mousedown', this._rotLeftMouseDown);
+            $('#r-left').on('mouseup', this._rotLeftMouseUp);
+            $('#r-right').on('mousedown', this._rotRightMouseDown);
+            $('#r-right').on('mouseup', this._rotRightMouseUp);
+        }
+        _isFinised =()=>{
+            $('#m-center').find('i').removeClass('fa-spin')
         }
 
-        animateLine = () => {
+        _cocoButtonClicked =()=>{
+            let flag = this.get('cocoButton');
 
-        };
-        generateSVG =()=>{
+            if(!flag){
+                e.ObjectDetectionController.triggerObjectDetection()
+                $('#coco').find('i').addClass('fa-spin');
+
+            }else{
+                $('.detectObject').remove();
+                e.ObjectDetectionController.triggerOffObjectDetection()
+                $('#coco').find('i').removeClass('fa-spin');
+            }
+
+
+            this.set({cocoButton:!flag})
+
+        }
+        generateSVG = () => {
             let filtered = e.PathController.get('paths');
-            console.log(filtered)
             let dist = 0;
             filtered.map(d => {
                 let v0 = new THREE.Vector3(d.fromNode.x, d.fromNode.y, d.fromNode.z);
@@ -1460,9 +1544,9 @@ var DRONE; //Global  namespace
                 .attr('stroke', '#ffffff')
                 .attr('stroke-width', '1px');
             paths.append('circle')
-                .attr('r',2)
-                .attr('cx',4)
-                .attr('cy',10)
+                .attr('r', 2)
+                .attr('cx', 4)
+                .attr('cy', 10)
                 .attr('stroke', '#fff')
                 .attr('stroke-width', 1)
                 .attr('fill', '#0874a2')
@@ -1478,15 +1562,14 @@ var DRONE; //Global  namespace
                 .attr('stroke', '#fff')
                 .attr('stroke-width', 1)
                 .attr('fill', '#0874a2')
-                .attr('class','circle')
-                .attr('id', function (d,i) {
-                    return 'goal'+i;
+                .attr('class', 'circle')
+                .attr('id', function (d, i) {
+                    return 'goal' + i;
                 })
         }
         updateLine = () => {
-            let index = e.PathController.get('currentIndex');
-            console.log(index)
-            $(`circle#goal${index-1}`).attr('fill','#fff')
+            let index = e.PathController.get('goalReached');
+            $(`circle#goal${index}`).attr('fill', '#fff')
         };
         updateSpinner = () => {
             $('#m-center').find('i').addClass('fa-spin');

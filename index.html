@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <title>Drone simulation</title>
     <script src="src/js/tf.min.js"></script>
-    <script src="src/js/coco.js"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
     <script src="src/js/jquery.min.js"></script>
     <script src="src/js/underscore-min.js"></script>
     <script src="src/js/createjs.min.js"></script>
@@ -55,7 +55,7 @@
     </svg>
 </div>
 <div id="altitude-container" style="display: none"></div>
-<div id="intro" style="display: none"></div>
+<div id="intro"></div>
 <div id="controller" style="display: none">
     <div id="control-left">
         <div id="m-top" title="Move up"><i class="fas fa-angle-up fa-2x" ></i></div>
@@ -67,7 +67,6 @@
         <div id="m-center" title="Click to STOP animation"><i class="fas fa-spinner fa-2x"></i></div>
         <!--<div id="m-center_start"><i class="fas fa-caret-square-right fa-3x"></i></i></div>-->
     </div>
-
     <div id="control-right">
         <div id="r-top"><i class="fas fa-angle-up fa-2x"></i></div>
         <div id="r-bottom"><i class="fas fa-angle-down fa-2x"></i></div>
@@ -76,9 +75,12 @@
         <div id="r-center" ><i class="fas fa-video fa-2x"></i></div>
     </div>
     <div id="control-center">
-        <canvas data-type="radial-gauge" data-value="10" data-width="200" data-height="200" data-bar-width="10"
-                data-bar-shadow="5" data-color-bar-progress="rgba(50,200,50,.75)" width="500" height="500"
-                style="width: 400px; height: 400px;"></canvas>
+
+    </div>
+</div>
+<div id="objDetection">
+    <div id="coco" title="Toggle ON/OFF object detection">
+        <i class="fas fa-compact-disc fa-2x"></i>
     </div>
 </div>
 </body>
