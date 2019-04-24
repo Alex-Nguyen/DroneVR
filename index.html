@@ -7,6 +7,7 @@
     <script src="src/js/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
     <script src="src/js/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="src/js/underscore-min.js"></script>
     <script src="src/js/createjs.min.js"></script>
     <script src="src/js/three.min.js"></script>
@@ -17,8 +18,19 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
           integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <script src="src/js/d3.v4.min.js"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
+
 </head>
 <body>
+<div id="mapid">
+    <div id="map"></div>
+    <div id="info"></div>
+    <div id="control">
+        <button id="confirm" type="button">Confirm WP</button>
+    </div>
+</div>
+
 <div id="three"></div>
 <div class="radar" style="display: none">
     <div class="pointer"></div>
@@ -85,4 +97,9 @@
 </div>
 </body>
 <script src="./src/js/app.js"></script>
+<script>
+
+
+
+</script>
 </html>

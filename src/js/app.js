@@ -64,29 +64,29 @@ var DRONE; //Global  namespace
  */
 !function (e) {
     let t = Backbone.Model.extend({
-        init:function () {
+        init: function () {
             //this.on('cocoSsd:ready', this.triggerObjectDetection, this);
             this.canvas = document.querySelector('#canvas_scene')
         },
-        triggerOffObjectDetection:function(){
+        triggerOffObjectDetection: function () {
             e.AnimationController.off('draw', this._onDraw, this)
         },
-        triggerObjectDetection:function(){
+        triggerObjectDetection: function () {
             e.AnimationController.on('draw', this._onDraw, this)
         },
-        _onDraw:function () {
+        _onDraw: function () {
             e.mainScene.model.detect(this.canvas).then(predictions => {
                 $('.detectObject').remove();
-                if(predictions.length >0){
-                    predictions.forEach(predict=>{
-                        if(predict.class!=="airplane" &&predict.class!=="kite"){
+                if (predictions.length > 0) {
+                    predictions.forEach(predict => {
+                        if (predict.class !== "airplane" && predict.class !== "kite") {
                             let div = document.createElement('div')
-                            div.className='detectObject';
-                            div.style.left = predict.bbox[0] +"px";
-                            div.style.top = predict.bbox[1]+"px";
-                            div.style.width = predict.bbox[2]+"px";
-                            div.style.height = predict.bbox[3]+"px";
-                            div.setAttribute('name',predict.class );
+                            div.className = 'detectObject';
+                            div.style.left = predict.bbox[0] + "px";
+                            div.style.top = predict.bbox[1] + "px";
+                            div.style.width = predict.bbox[2] + "px";
+                            div.style.height = predict.bbox[3] + "px";
+                            div.setAttribute('name', predict.class);
                             let text = document.createElement('span')
                             text.innerHTML = predict.class;
                             div.appendChild(text);
@@ -386,10 +386,10 @@ var DRONE; //Global  namespace
             paths: null,
             isPathReady: false,
             currentIndex: 0,
-            nextIndex:1,
+            nextIndex: 1,
             currentPaths: null,
             currentPathIndex: 0,
-            nextPathIndex:1
+            nextPathIndex: 1
         },
         init: function () {
             let _procededPaths = this.get('paths');
@@ -405,7 +405,7 @@ var DRONE; //Global  namespace
             this.set({currentPaths: firstPath});
             this.set({isPathReady: true})
         },
-        getCurrent:function(){
+        getCurrent: function () {
             let point = new THREE.Vector3();
             let currentPathIndex = this.get('currentPathIndex');
             let currentValue = this.get('currentPaths').paths[currentPathIndex];
@@ -423,7 +423,7 @@ var DRONE; //Global  namespace
                 return null
             }
             if (currentPathIndex === paths.paths.length) {
-                this.set({goalReached:currentIndex})
+                this.set({goalReached: currentIndex})
                 currentIndex += 1;
                 currentPathIndex = 0;
                 if (currentIndex === this.get('paths').length) {
@@ -460,6 +460,7 @@ var DRONE; //Global  namespace
     e.PathController = new t();
 }(DRONE || (DRONE = {}));
 
+
 /**
  * Main scene
  */
@@ -487,7 +488,7 @@ var DRONE; //Global  namespace
                 this.on('buildings:ready', this.addBuildings);
                 this.on('matrix:draw', this.initMatrixWorld);
                 this.on('cocoSsd:start', this.initCoCoSsd);
-                this.on('matrixData:ready', this.initRandomTarget);
+                //this.on('matrixData:ready', this.initRandomTarget);
                 this.on('target:ready', this.initPaths);
                 this.on('paths:ready', this.startAnimation);
                 this.on('camera:followDrone', this.registerCamToDrone);
@@ -499,7 +500,7 @@ var DRONE; //Global  namespace
                 this.camera.lookAt(0, 0, 0);
                 this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: !0});
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.domElement.id ='canvas_scene';
+                this.renderer.domElement.id = 'canvas_scene';
                 $('#three').append(this.renderer.domElement);
 
                 this.addPlane();
@@ -1005,6 +1006,61 @@ var DRONE; //Global  namespace
                 this.trigger('matrixData:ready');
                 return matrix;
             },
+            initWayPoints:function(points){
+                //Remove previous Point
+                this.container.remove(this.targetContainer);
+                let _geometry = new THREE.BufferGeometry();
+                let _vertices = new Float32Array(points.length * 3);
+                let scalerX = d3.scaleLinear()
+                    .domain([0, 512])
+                    .range([-512, 512]);
+                let scalerY = d3.scaleLinear()
+                    .domain([0, 256])
+                    .range([-256, 256]);
+                for (let i = 0; i < points.length; i++) {
+
+                    let targetGeo = new THREE.SphereBufferGeometry(0.5, 10, 10);
+                    let targetMat = new THREE.MeshBasicMaterial({
+                        transparent: true,
+                        opacity: 0,
+                    });
+                    let target = new THREE.Mesh(targetGeo, targetMat);
+                    target.name = "target";
+                    let posR = new THREE.Vector3(scalerX(points[i]._pos.x), scalerY(points[i]._pos.y), 20);
+                    let grid = this.world3DtoGrid(posR, this.get('width_segment'),
+                        this.get('height_segment'),
+                        this.get('depth_segment'),
+                        this.get('width'),
+                        this.get('height'),
+                        this.get('depth'));
+                    let n = this.get('matrixData')[grid.zGrid][grid.yGrid][grid.xGrid];
+                    target.position.set(
+                        n.x_3D,
+                        n.y_3D,
+                        n.z_3D,
+                    );
+                    _vertices[i * 3] = n.x_3D;
+                    _vertices[i * 3 + 1] = n.y_3D;
+                    _vertices[i * 3 + 2] = n.z_3D;
+                    target.name = "Waypoint";
+                    this.targetContainer.add(target);
+
+                }
+                _geometry.addAttribute('position', new THREE.BufferAttribute(_vertices, 3));
+                let _material = new THREE.PointsMaterial({
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    size: 8,
+                    map: e.preload.texture.particle1,
+                    opacity: 0.5,
+                    depthTest: false
+
+                });
+                let mesh = new THREE.Points(_geometry, _material);
+                mesh.name ="waypoint";
+                this.container.add(mesh);
+                this.trigger('target:ready');
+            },
             initRandomTarget: function () {
 
                 const count = this.get('numberOfTargets');
@@ -1058,6 +1114,11 @@ var DRONE; //Global  namespace
 
             },
             initPaths: function () {
+                //Reset paths
+                e.PathController.set({paths: []});
+                this.set({animationPoints: []});
+                this.set({savedPath: []});
+
                 let DronePos = new THREE.Vector3();
                 DronePos.copy(this.droneClone.position);
                 DronePos.applyAxisAngle(new THREE.Vector3(1, 0, 0), 0.5 * Math.PI);
@@ -1284,6 +1345,61 @@ var DRONE; //Global  namespace
     e.mainScene = new t();
 }(DRONE || (DRONE = {}));
 
+!function (e) {
+    let t = Backbone.Model.extend({
+        init: function () {
+            const lon = e.mainScene.get('longitude');
+            const lat = e.mainScene.get('latitude');
+            const zoom = e.mainScene.get('zoom');
+            this.scalerX = d3.scaleLinear()
+                .domain([-512, 512])
+                .range([0, 510]);
+            this.scalerY = d3.scaleLinear()
+                .domain([256, -256])
+                .range([0, 255]);
+            this.markers = [];
+            mapboxgl.accessToken = 'pk.eyJ1IjoidmluaG50IiwiYSI6ImNqb2VqdXZvaDE4cnkzcG80dXkxZzlhNWcifQ.G6sZ1ukp_DhiSmCvgKblVQ';
+            this.map = new mapboxgl.Map({
+                container: 'map', // container id
+                style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+                center: [lon, lat], // starting position [lng, lat]
+                zoom: zoom // starting zoom
+            });
+
+            this.map.on('mousemove', function (e) {
+                $('#info').html(`${JSON.stringify(e.point)} and ${JSON.stringify(e.lngLat)}`)
+
+            });
+            let el = document.createElement('div');
+            el.className = 'marker-drone';
+
+            // make a marker for each feature and add to the map
+            this.droneMarker = new mapboxgl.Marker(el)
+                .setLngLat([lon, lat])
+                .addTo(this.map);
+            this.map.on('click', this.handleClick);
+            e.mainScene.on('dronePos:update', this.updateMarker, this);
+        },
+        updateMarker: function(){
+            let position = e.mainScene.get('dronePos');
+            let x = this.scalerX(position.x);
+            let y = this.scalerY(position.z);
+            let latlon = this.map.unproject({x, y});
+            this.droneMarker.setLngLat([latlon.lng, latlon.lat]);
+        },
+        handleClick: function (m) {
+
+           let marker =  new mapboxgl.Marker({
+                draggable: true
+            }).setLngLat([m.lngLat.lng, m.lngLat.lat])
+                .addTo(this);
+            marker.visited = false;
+            e.miniMap.markers.push(marker);
+        },
+    });
+    e.miniMap = new t();
+}(DRONE || (DRONE = {}));
+
 /**
  * Intro scene with a drone
  */
@@ -1431,7 +1547,7 @@ var DRONE; //Global  namespace
         init() {
             this.set({
                 navMouseCenterClicked: false,
-                cocoButton:false
+                cocoButton: false
             });
             var _this = this;
             this.on('change:navMouseCenterClicked', this.onChangeStartStop);
@@ -1493,26 +1609,31 @@ var DRONE; //Global  namespace
             $('#r-left').on('mouseup', this._rotLeftMouseUp);
             $('#r-right').on('mousedown', this._rotRightMouseDown);
             $('#r-right').on('mouseup', this._rotRightMouseUp);
+            $('#confirm').on('click', this._wayPointonClick);
         }
-        _isFinised =()=>{
+        _wayPointonClick =()=>{
+
+            e.mainScene.initWayPoints(e.miniMap.markers)
+        }
+        _isFinised = () => {
             $('#m-center').find('i').removeClass('fa-spin')
         }
 
-        _cocoButtonClicked =()=>{
+        _cocoButtonClicked = () => {
             let flag = this.get('cocoButton');
 
-            if(!flag){
+            if (!flag) {
                 e.ObjectDetectionController.triggerObjectDetection()
                 $('#coco').find('i').addClass('fa-spin');
 
-            }else{
+            } else {
                 $('.detectObject').remove();
                 e.ObjectDetectionController.triggerOffObjectDetection()
                 $('#coco').find('i').removeClass('fa-spin');
             }
 
 
-            this.set({cocoButton:!flag})
+            this.set({cocoButton: !flag})
 
         }
         generateSVG = () => {
@@ -1699,6 +1820,7 @@ var DRONE; //Global  namespace
              */
             e.AnimationController.unregisterAnimation();
             e.mainScene.init();
+            e.miniMap.init();
         }
 
     });
