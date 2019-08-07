@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="src/js/imagediff.min.js"></script>
+</head>
+<body>
+<img id="img1" src="src/assets/images/tank4.png">
+<img id="img2" src="src/assets/images/tank5.png">
+</body>
+<script>
+    var ImageA = document.getElementById("img1");
+    var ImageB = document.getElementById("img2");
+    var diff = imagediff.diff(ImageA, ImageB);
+    var canvas = imagediff.createCanvas(diff.width, diff.height);
+
+    var context = canvas.getContext('2d');
+    // Draw the generated image with differences on the canvas
+    context.putImageData(diff, 0, 0);
+    // Add the canvas element to the div element to show
+    document.body.appendChild(canvas);
+    canvas.toBlob(function (blob) {
+        console.log(blob)
+    })
+
+</script>
+</html>

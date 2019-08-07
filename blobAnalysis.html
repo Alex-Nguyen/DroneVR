@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<img id="target" src="src/assets/images/sampleBlob.png">
+</body>
+<script>
+    class Blob {
+        constructor(x,y){
+            this.minx = x;
+            this.maxx =x;
+            this.miny = y;
+            this.maxy = y;
+            this.thresholdDist = 150;
+        }
+        add(px,py){
+            this.minx = Math.min(this.minx, px);
+            this.maxx = Math.max(this.maxx, px);
+            this.miny = Math.min(this.miny, py);
+            this.maxy = Math.max(this.maxy, py);
+        }
+        getCenter(){
+            return [(this.minx + this.maxx)/2, (this.miny + this.maxy)/2]
+        }
+        getDistance(px, py){
+            let center = this.getCenter();
+            let cx = center[0];
+            let cy = center[1];
+            return Math.sqrt(Math.pow(px-cx,2)+ Math.pow(py-cy,2))
+        }
+        isNear(px,py){
+            let cx = (this.minx + this.maxx)/2;
+            let cy = (this.miny + this.maxy)/2;
+            let dist = Math.sqrt(Math.pow(px-cx,2)+ Math.pow(py-cy,2))
+            console.log(dist)
+            return dist <this.thresholdDist?true:false;
+        }
+    }
+    var blobs =[];
+
+    var canvas = document.createElement('canvas');
+
+    var ctx = canvas.getContext('2d');
+    canvas.width=300;
+    canvas.height =150;
+    ctx.beginPath();
+    ctx.rect(10, 10, 10, 25);
+    ctx.fillStyle = "red";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.rect(40, 50, 15, 10);
+    ctx.fillStyle = "blue";
+    ctx.fill();
+
+
+    document.body.appendChild(canvas);
+    var imageData  = ctx.getImageData(0,0,canvas.width, canvas.height);
+    console.log(imageData );
+    var data = imageData.data;
+    for(let i=0;i<data.length;i+=4){
+        var avg = (data[i]+ data[i+1]+data[i+2])/3;
+        let px = (i/4)%canvas.width;
+        let py = Math.floor((i/4)/canvas.width);
+        // console.log(`px =${px} and py =${py} color =${avg}`)
+        if(avg >50){
+            if(blobs.length>0){
+                let found=false;
+
+                for(let j=0; j<blobs.length; j++){
+                    if(blobs[j].isNear(px,py)){
+                        blobs[j].add(px,py);
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    let blob = new Blob(px, py);
+                    blobs.push(blob);
+                }
+            }else{
+                console.log("No data, initialize....")
+                let blob = new Blob(px, py);
+                blobs.push(blob);
+            }
+        }
+
+    }
+    //ctx.putImageData(imageData, 0, 0);
+    blobs.forEach(blob=>{
+        ctx.beginPath();
+        ctx.rect(blob.minx, blob.miny, (blob.maxx-blob.minx), blob.maxy-blob.miny);
+        ctx.stroke();
+        // ctx.fillStyle = "blue";
+        // ctx.fill();
+    })
+
+</script>
+</html>

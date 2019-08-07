@@ -14,104 +14,98 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/index.html">
+        <entry file="file://$PROJECT_DIR$/blobAnalysis.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="258">
-              <caret line="29" column="53" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
+            <state relative-caret-position="352">
+              <caret line="16" column="37" selection-start-line="16" selection-start-column="37" selection-end-line="16" selection-end-column="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/blobAnalysis_1.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1848">
+              <caret line="84" selection-start-line="84" selection-end-line="84" />
               <folding>
-                <element signature="n#div#3;n#body#0;n#html#0;n#!!top" />
-                <element signature="n#div#5;n#body#0;n#html#0;n#!!top" />
-                <element signature="n#div#8;n#body#0;n#html#0;n#!!top" />
-                <element signature="n#div#9;n#body#0;n#html#0;n#!!top" />
+                <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/js/backbone-min.js">
-          <provider selected="true" editor-type-id="text-editor" />
+        <entry file="file://$PROJECT_DIR$/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2112">
+              <caret line="153" column="68" selection-start-line="153" selection-start-column="68" selection-end-line="153" selection-end-column="68" />
+              <folding>
+                <element signature="n#script#15;n#head#0;n#html#0;n#!!top" />
+                <element signature="n#style#0;n#div#2;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#div#7;n#body#0;n#html#0;n#!!top" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/backbone.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="550">
+              <caret line="25" column="10" selection-start-line="25" selection-start-column="10" selection-end-line="25" selection-end-column="10" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/assets/css/body.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="468">
-              <caret line="375" column="14" selection-start-line="375" selection-start-column="14" selection-end-line="375" selection-end-column="14" />
+            <state relative-caret-position="9438">
+              <caret line="429" column="7" selection-start-line="429" selection-start-column="7" selection-end-line="429" selection-end-column="7" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/js/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1579">
-              <caret line="1206" column="28" lean-forward="true" selection-start-line="1206" selection-start-column="28" selection-end-line="1206" selection-end-column="28" />
+            <state relative-caret-position="44616">
+              <caret line="2197" column="33" selection-start-line="2197" selection-start-column="33" selection-end-line="2197" selection-end-column="33" />
               <folding>
-                <element signature="e#14926#17381#0" />
-                <element signature="e#17413#19846#0" />
-                <element signature="e#19892#20041#0" />
-                <element signature="e#20085#22588#0" />
-                <element signature="e#22632#24315#0" />
-                <element signature="e#29915#30991#0" />
-                <element signature="e#31035#31466#0" />
-                <element signature="e#35612#37264#0" />
-                <element signature="e#37312#37925#0" />
-                <element signature="e#37961#38928#0" />
-                <element signature="e#38968#41602#0" />
-                <element signature="e#41638#41861#0" />
-                <element signature="e#41896#44857#0" />
-                <element signature="e#44891#45310#0" />
-                <element signature="e#45339#45457#0" />
-                <element signature="e#45500#54869#0" />
-                <element signature="e#54913#57133#0" />
-                <element signature="e#62668#64805#0" />
-                <element signature="e#64869#66542#0" />
-                <element signature="e#66586#67246#0" />
-                <element signature="e#69177#71222#0" />
-                <element signature="e#71306#72555#0" />
+                <element signature="e#10417#16051#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/package-lock.json">
-          <provider selected="true" editor-type-id="text-editor" />
+        <entry file="file://$PROJECT_DIR$/src/assets/model/tank/Body 1.jpg">
+          <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/js/worker.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="22">
-              <caret line="1" column="19" selection-start-line="1" selection-start-column="19" selection-end-line="1" selection-end-column="19" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/package.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="18" column="10" selection-start-line="18" selection-start-column="10" selection-end-line="18" selection-end-column="10" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="27" column="27" lean-forward="true" selection-start-line="25" selection-start-column="7" selection-end-line="27" selection-end-column="27" />
+            <state relative-caret-position="259">
+              <caret line="23" column="16" lean-forward="true" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/js/index.js">
+        <entry file="file://$PROJECT_DIR$/tank.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12342">
-              <caret line="561" column="63" selection-start-line="551" selection-start-column="16" selection-end-line="561" selection-end-column="63" />
+            <state relative-caret-position="1122">
+              <caret line="51" column="6" selection-start-line="28" selection-start-column="3" selection-end-line="51" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/js/OBJLoader.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17512">
+              <caret line="796" column="6" selection-start-line="796" selection-start-column="6" selection-end-line="796" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -122,44 +116,47 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="CSS File" />
-        <option value="JavaScript File" />
         <option value="HTML File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>drawBuilding</find>
-      <find>initOSM</find>
-      <find>coco</find>
-      <find>world3DtoNode</find>
-      <find>initMatrixWorld</find>
-      <find>world3DtoGrid</find>
-      <find>layOut</find>
-      <find>quaternion</find>
-      <find>_navCenterMouseDown</find>
-      <find>startAnimation</find>
-      <find>random</find>
-      <find>droneC</find>
-      <find>droneAltitude</find>
-      <find>altitude</find>
-      <find>animationPoints</find>
-      <find>cube</find>
-      <find>draw</find>
-      <find>console.log</find>
-      <find>cocoSsd:start</find>
-      <find>altitude-container</find>
-      <find>cocoSsd</find>
-      <find>DroneClone</find>
-      <find>long</find>
-      <find>initRandomTarget</find>
-      <find>scale</find>
-      <find>scalerX</find>
+      <find>ForeGroundDetector</find>
+      <find>camera</find>
+      <find>tank</find>
+      <find>raf</find>
+      <find>scalar</find>
+      <find>getWorld</find>
+      <find>navMouseCenterClicked</find>
+      <find>onChangeStartStop</find>
+      <find>change:isPathReady</find>
+      <find>isPathReady</find>
+      <find>mapbox</find>
       <find>marker</find>
-      <find>initWayPoints</find>
+      <find>Waypoint</find>
+      <find>waypoint</find>
       <find>target:ready</find>
       <find>initPaths</find>
+      <find>targetContainer</find>
+      <find>DronePos</find>
+      <find>5</find>
+      <find>droneClone</find>
+      <find>addDrone</find>
+      <find>8</find>
+      <find>initPa</find>
+      <find>dronePos</find>
+      <find>Intro</find>
+      <find>droneClo</find>
+      <find>SVG</find>
+      <find>PathController</find>
+      <find>generateSVG</find>
+      <find>initWayPoints</find>
     </findStrings>
+    <replaceStrings>
+      <replace>NoBlending</replace>
+    </replaceStrings>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -171,11 +168,22 @@
         <option value="$PROJECT_DIR$/src/js/test.js" />
         <option value="$PROJECT_DIR$/src/js/index.js" />
         <option value="$PROJECT_DIR$/src/js/coco.js" />
-        <option value="$PROJECT_DIR$/test.html" />
-        <option value="$PROJECT_DIR$/src/assets/css/body.css" />
         <option value="$PROJECT_DIR$/test2.html" />
+        <option value="$PROJECT_DIR$/src/js/LegacyJSONLoader.js" />
+        <option value="$PROJECT_DIR$/tank.html" />
+        <option value="$PROJECT_DIR$/src/assets/model/tank/tank.json" />
+        <option value="$PROJECT_DIR$/src/js/imagediff.min.js" />
+        <option value="$PROJECT_DIR$/imagediff.html" />
+        <option value="$PROJECT_DIR$/src/js/mapbox-gl-dev.js" />
+        <option value="$PROJECT_DIR$/aframe.html" />
+        <option value="$PROJECT_DIR$/src/js/DRACOLoader.js" />
+        <option value="$PROJECT_DIR$/src/js/OBJLoader.js" />
+        <option value="$PROJECT_DIR$/blobAnalysis_1.html" />
+        <option value="$PROJECT_DIR$/blobAnalysis.html" />
+        <option value="$PROJECT_DIR$/src/assets/css/body.css" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/src/js/app.js" />
+        <option value="$PROJECT_DIR$/test.html" />
       </list>
     </option>
   </component>
@@ -224,13 +232,6 @@
               <item name="assets" type="462c0819:PsiDirectoryNode" />
               <item name="css" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="AIVRDrone" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AIVRDrone" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-              <item name="images" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -241,17 +242,20 @@
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Coding\AIVRDrone" />
+      <recent name="D:\Coding\AIVRDrone\src\assets\images" />
+      <recent name="D:\Coding\AIVRDrone\src\assets\model" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Coding\AIVRDrone\src\assets\model\ssdlite_mobilenet_v2" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\Coding\AIVRDrone\src\assets\images" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -298,11 +302,32 @@
       <workItem from="1555179409713" duration="64876000" />
       <workItem from="1555884474759" duration="3871000" />
       <workItem from="1555889210182" duration="20786000" />
+      <workItem from="1556128355745" duration="2794000" />
+      <workItem from="1556506321275" duration="20234000" />
+      <workItem from="1557362381765" duration="3329000" />
+      <workItem from="1557520844867" duration="19000" />
+      <workItem from="1557966308513" duration="1354000" />
+      <workItem from="1557980178982" duration="13362000" />
+      <workItem from="1558118328180" duration="23000" />
+      <workItem from="1558385616681" duration="18155000" />
+      <workItem from="1558555377245" duration="15000" />
+      <workItem from="1559184278913" duration="1926000" />
+      <workItem from="1559335403809" duration="14172000" />
+      <workItem from="1559682312918" duration="23000" />
+      <workItem from="1559705518639" duration="3099000" />
+      <workItem from="1559763141692" duration="438000" />
+      <workItem from="1559939139809" duration="10069000" />
+      <workItem from="1560108941781" duration="300000" />
+      <workItem from="1560119359917" duration="15000" />
+      <workItem from="1563213943478" duration="624000" />
+      <workItem from="1563828031649" duration="1910000" />
+      <workItem from="1564102964761" duration="609000" />
+      <workItem from="1564769732963" duration="64000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="183553000" />
+    <option name="totallyTimeSpent" value="276087000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
@@ -339,8 +364,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/js/app.js</url>
-          <line>1323</line>
+          <line>1885</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/blobAnalysis.html</url>
+          <line>64</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -355,13 +385,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/backbone.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="25" column="10" selection-start-line="25" selection-start-column="10" selection-end-line="25" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/js/test.js" />
     <entry file="file://$PROJECT_DIR$/src/js/createjs.min.js">
       <provider selected="true" editor-type-id="text-editor">
@@ -370,21 +393,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/js/coco.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="184" column="23" selection-start-line="184" selection-start-column="23" selection-end-line="184" selection-end-column="23" />
-          <folding>
-            <element signature="e#360#990#0" />
-            <element signature="e#1013#3827#0" />
-            <element signature="e#3841#8974#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/js/pathfinding-browser.js">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/test2.html" />
     <entry file="file://$PROJECT_DIR$/package-lock.json">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -409,71 +421,153 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/js/LegacyJSONLoader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="614">
+          <caret line="577" column="6" selection-start-line="577" selection-start-column="6" selection-end-line="577" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/js/coco.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="184" column="23" selection-start-line="184" selection-start-column="23" selection-end-line="184" selection-end-column="23" />
+          <folding>
+            <element signature="e#360#990#0" />
+            <element signature="e#1013#3827#0" />
+            <element signature="e#3841#8974#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/js/imagediff.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44">
+          <caret line="6" column="4280" selection-start-line="6" selection-start-column="4280" selection-end-line="6" selection-end-column="4280" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/model/tank/tank.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1012">
+          <caret line="46" column="28" selection-start-line="46" selection-start-column="28" selection-end-line="46" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/js/mapbox-gl-dev.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1106688">
+          <caret line="50254" column="38" selection-start-line="50254" selection-start-column="38" selection-end-line="50254" selection-end-column="38" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/js/backbone-min.js">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/assets/css/body.css">
+    <entry file="file://$PROJECT_DIR$/imagediff.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="375" column="14" selection-start-line="375" selection-start-column="14" selection-end-line="375" selection-end-column="14" />
+        <state relative-caret-position="506">
+          <caret line="23" column="24" selection-start-line="23" selection-start-column="24" selection-end-line="23" selection-end-column="24" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test.html">
+    <entry file="file://$PROJECT_DIR$/src/js/DRACOLoader.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="27" column="27" lean-forward="true" selection-start-line="25" selection-start-column="7" selection-end-line="27" selection-end-column="27" />
+        <state relative-caret-position="11154">
+          <caret line="520" column="2" selection-start-line="520" selection-start-column="2" selection-end-line="520" selection-end-column="2" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test2.html">
+    <entry file="file://$PROJECT_DIR$/aframe.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="13" column="7" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/blobAnalysis.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="352">
-          <caret line="16" column="5" lean-forward="true" selection-start-line="10" selection-start-column="3" selection-end-line="16" selection-end-column="5" />
+          <caret line="16" column="37" selection-start-line="16" selection-start-column="37" selection-end-line="16" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/blobAnalysis_1.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1848">
+          <caret line="84" selection-start-line="84" selection-end-line="84" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="29" column="53" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
+        <state relative-caret-position="2112">
+          <caret line="153" column="68" selection-start-line="153" selection-start-column="68" selection-end-line="153" selection-end-column="68" />
           <folding>
-            <element signature="n#div#3;n#body#0;n#html#0;n#!!top" />
-            <element signature="n#div#5;n#body#0;n#html#0;n#!!top" />
-            <element signature="n#div#8;n#body#0;n#html#0;n#!!top" />
-            <element signature="n#div#9;n#body#0;n#html#0;n#!!top" />
+            <element signature="n#script#15;n#head#0;n#html#0;n#!!top" />
+            <element signature="n#style#0;n#div#2;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#div#7;n#body#0;n#html#0;n#!!top" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/backbone.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="550">
+          <caret line="25" column="10" selection-start-line="25" selection-start-column="10" selection-end-line="25" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/css/body.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9438">
+          <caret line="429" column="7" selection-start-line="429" selection-start-column="7" selection-end-line="429" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/js/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1579">
-          <caret line="1206" column="28" lean-forward="true" selection-start-line="1206" selection-start-column="28" selection-end-line="1206" selection-end-column="28" />
+        <state relative-caret-position="44616">
+          <caret line="2197" column="33" selection-start-line="2197" selection-start-column="33" selection-end-line="2197" selection-end-column="33" />
           <folding>
-            <element signature="e#14926#17381#0" />
-            <element signature="e#17413#19846#0" />
-            <element signature="e#19892#20041#0" />
-            <element signature="e#20085#22588#0" />
-            <element signature="e#22632#24315#0" />
-            <element signature="e#29915#30991#0" />
-            <element signature="e#31035#31466#0" />
-            <element signature="e#35612#37264#0" />
-            <element signature="e#37312#37925#0" />
-            <element signature="e#37961#38928#0" />
-            <element signature="e#38968#41602#0" />
-            <element signature="e#41638#41861#0" />
-            <element signature="e#41896#44857#0" />
-            <element signature="e#44891#45310#0" />
-            <element signature="e#45339#45457#0" />
-            <element signature="e#45500#54869#0" />
-            <element signature="e#54913#57133#0" />
-            <element signature="e#62668#64805#0" />
-            <element signature="e#64869#66542#0" />
-            <element signature="e#66586#67246#0" />
-            <element signature="e#69177#71222#0" />
-            <element signature="e#71306#72555#0" />
+            <element signature="e#10417#16051#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/model/tank/Body 1.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tank.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1122">
+          <caret line="51" column="6" selection-start-line="28" selection-start-column="3" selection-end-line="51" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/js/OBJLoader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17512">
+          <caret line="796" column="6" selection-start-line="796" selection-start-column="6" selection-end-line="796" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="259">
+          <caret line="23" column="16" lean-forward="true" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
         </state>
       </provider>
     </entry>

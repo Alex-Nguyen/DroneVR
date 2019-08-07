@@ -27,7 +27,12 @@ li {
     font-size: 15px;
     position: absolute;
 }
-
+#canvas_overlay{
+    position: absolute;
+    z-index: 200;
+    left: 0;
+    top: 0;
+}
 #loader {
     width: 240px;
     height: 240px;
@@ -154,10 +159,11 @@ li {
 
 #controller {
     position: absolute;
-    width: 100%;
+    width: 800px;
     /*background-color: rgba(210, 180, 140, 0.05);*/
     z-index: 100;
     bottom: 5%;
+    left: 30%;
 }
 
 #controller #control-center {
@@ -171,7 +177,7 @@ li {
 #controller #control-left {
     border-radius: 50%;
     position: absolute;
-    left: 25%;
+    left: 0;
     padding: 10px;
     /*background-color: red;*/
     border-style: solid;
@@ -254,7 +260,7 @@ li {
 #controller #control-right {
     border-radius: 50%;
     position: absolute;
-    right: 25%;
+    right: 0;
     padding: 10px;
     border-style: solid;
     width: 120px;
@@ -341,7 +347,15 @@ li {
     padding-bottom: 10px;
     z-index: 100;
 }
-
+#homeReturn{
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    cursor: pointer;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    z-index: 100;
+}
 #coco{
     cursor: pointer;
 }
@@ -367,8 +381,8 @@ li {
 #control{
     position: absolute;
     width: 50px;
-    top:10px;
-    right: 30px;
+    top:50px;
+    right: 10px;
 }
 .marker-drone {
     background-image: url('../images/drone.png');
@@ -377,4 +391,46 @@ li {
     background-size: 100% 100%;
     border-radius: 10%;
     cursor: pointer;
+}
+#toggle{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 200;
+    cursor: pointer;
+}
+#opener{
+    z-index: 100;
+}
+.ui-draggable, .ui-droppable {
+    background-position: top;
+}
+li{
+    padding: 5px;
+}
+input{
+    position: absolute;
+    right: 100px;
+}
+#overlay{
+    /*position: absolute;*/
+    /*border: darkred solid thin;*/
+    z-index: 100;
+    /*margin-left: 675px;*/
+    /*margin-top: 184px;*/
+    /*width: 20px;*/
+    /*height: 30px;*/
+}
+#three{
+    top: 0;
+    left: 0;
+    position: absolute;
+    z-index: -10;
+}
+canvas{
+    top: 0;
+    left: 0;
+}
+.fa-2x:hover{
+    color: #FFFF00	!important; ;
 }

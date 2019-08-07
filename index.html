@@ -6,37 +6,104 @@
     <title>Drone simulation</title>
     <script src="src/js/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
-    <script src="src/js/jquery.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!--<link rel="stylesheet" href="/resources/demos/style.css">-->
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="src/js/underscore-min.js"></script>
     <script src="src/js/createjs.min.js"></script>
     <script src="src/js/three.min.js"></script>
+    <script src="src/js/LegacyJSONLoader.js"></script>
     <script src="src/js/chroma.min.js"></script>
     <script src="src/js/backbone-min.js"></script>
     <script src="src/js/pathfinding-browser.js"></script>
+    <script src="src/js/GLTFLoader.js"></script>
+    <script src="src/js/OBJLoader.js"></script>
     <link rel="stylesheet" type="text/css" href="src/assets/css/body.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
           integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <script src="src/js/d3.v4.min.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
+    <script>
+        $( function() {
+            $( "#dialog" ).dialog({
+                autoOpen: false,
+                maxWidth:600,
+                maxHeight: 700,
+                width: 500,
+                height: 560,
+                show: {
+                    effect: "blind",
+                    duration: 1000
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 1000
+                },
+                buttons: {
+                    "Save all": function() {
+                        $( this ).dialog( "close" );
+                    },
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
 
+            $( "#opener" ).on( "click", function() {
+                $( "#dialog" ).dialog( "open" );
+            });
+        } );
+    </script>
 </head>
 <body>
-<div id="mapid">
+<div id="overlay"></div>
+<div id="dialog" title="Global Configuration">
+    Map configuration
+    <ul>
+        <li>
+            Longitude &nbsp;<input type="text" value="-101.875">
+        </li>
+        <li>Latitude &nbsp; <input type="text" value="33.5845"></li>
+        <li>Zoom &nbsp; <input type="text" value="17"></li>
+        <li>Width &nbsp; <input type="text" value="1024"></li>
+        <li>Height &nbsp; <input type="text" value="512"></li>
+        <li>Depth &nbsp; <input type="text" value="60"></li>
+        <li>Width segment &nbsp; <input type="text" value="30"></li>
+        <li>Height segment &nbsp; <input type="text" value="16"></li>
+        <li>Depth segment &nbsp; <input type="text" value="3"></li>
+    </ul>
+    Drone configuration (Home point)
+    <ul>
+        <li>
+            Longitude &nbsp;<input type="text" value="-101.875">
+        </li>
+        <li>Latitude &nbsp; <input type="text" value="33.5845"></li>
+    </ul>
+</div>
+<div id="opener" style="position: absolute;top: 0;left: 0; cursor: pointer" title="Open configuration">
+    <i class="fas fa-info-circle fa-2x"></i>
+</div>
+<!--<button id="opener">Open Dialog</button>-->
+<div id="toggle" title="Toggle ON/OFF map">
+    <i class="fas fa-toggle-on fa-2x"></i>
+</div>
+<div id="mapid" >
+
     <div id="map"></div>
     <div id="info"></div>
     <div id="control">
-        <button id="confirm" type="button">Confirm WP</button>
+
     </div>
 </div>
 
 <div id="three"></div>
-<div class="radar" style="display: none">
-    <div class="pointer"></div>
-    <div class="shadow"></div>
+<!--<div class="radar" style="display: none">-->
+    <!--<div class="pointer"></div>-->
+    <!--<div class="shadow"></div>-->
 
-</div>
+<!--</div>-->
 <div id="paths"></div>
 <div id="loader">
     <svg version="1.1" id="dc-spinner" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width:"38" height:"38" viewBox="0 0 38 38" preserveAspectRatio="xMinYMin meet" >
@@ -88,11 +155,20 @@
     </div>
     <div id="control-center">
 
+
     </div>
 </div>
 <div id="objDetection">
     <div id="coco" title="Toggle ON/OFF object detection">
-        <i class="fas fa-compact-disc fa-2x"></i>
+        <i class="fas fa-eye fa-2x"></i>
+    </div>
+</div>
+<div id="homeReturn">
+    <div title="Start routing" style="cursor: pointer;padding-bottom: 10px">
+        <i id="confirm" class="fas fa-route fa-2x"></i>
+    </div>
+    <div id="home" title="Return Home">
+        <i class="fas fa-street-view fa-2x"></i>
     </div>
 </div>
 </body>

@@ -14,6 +14,7 @@ var DRONE; //Global  namespace
             this._queue.on('progress', this._onProgress, this);
             this._queue.loadManifest([
                 {id: "model", src: "./src/assets/model/model.json"},
+                {id: "tank", src: "./src/assets/model/tank/tank.json"},
                 {id: "map", src: "./src/assets/model/map_data.xml"},
                 {id: "particle1", src: "./src/assets/images/particle1.png", type: createjs.Types.IMAGE},
                 {id: "particle2", src: "./src/assets/images/particle2.png"},
@@ -59,45 +60,480 @@ var DRONE; //Global  namespace
     e.Shaders = t;
 }(DRONE || (DRONE = {}));
 
+!function (e) {
+    class t {
+        constructor() {
+            this.NumGaussians = 5;
+            this.MinimumBackgroundRatio = 0.92;
+            this.InitialVariance = 900;//uint8             30^2
+            this.NumTrainingFrames = 40;
+            this.LearningRate = 0.005;
+            this.VarianceThreshold = 2.5 * 2.5;
+            this.InitialWeight = 0.05;
+
+        }
+
+        init(size) {
+            this.Time = 0;
+            const numPixels = size;
+            this.FrameSize = size;
+            this.Weights = this.zeros(numPixels, this.NumGaussians);
+            this.Variances = this.multiply(this.ones(numPixels, this.NumGaussians), this.InitialVariance);
+            this.Means = this.zeros(numPixels, this.NumGaussians);
+        }
+
+        sum(arr) {
+            let total = 0;
+            for (let i = 0; i < arr.length; i++) {
+                total += arr[i];
+            }
+            return total;
+        }
+
+        step(frame) {
+            this.Time += 1;
+            if (this.Time < this.NumTrainingFrames) {
+                this.LearningRate = 1 / this.Time;
+            } else {
+                this.LearningRate = 0.005;
+            }
+            let states = {};
+            states.w = [0, 0, 0, 0, 0];
+            states.m = [0, 0, 0, 0, 0];
+            states.v = [0, 0, 0, 0, 0];
+            const fgMask = this.zeros(1, this.FrameSize);
+            const numPixels = frame.length;
+
+            for (let i = 0; i < numPixels; i++) {
+                let x = frame[i];
+                states.w = this.Weights[i];
+                states.m = this.Means[i];
+                states.v = this.Variances[i];
+                let match = false;
+                let kCurr = this.NumGaussians - 1;
+                let kHit = 0;
+                // % for each Gaussian mode
+                for (let k = 0; k < this.NumGaussians; k++) {
+                    kCurr = k;
+                    if (states.w[k] <= 0) {
+                        break;
+                    }
+                    const d = x - states.m[k];
+                    const dd = d * d;
+                    match = dd < this.VarianceThreshold * states.v[k];
+                    if (match) {
+                        //Update model parameters
+                        states.m[k] = states.m[k] + this.LearningRate * d;
+                        states.v[k] = states.v[k] + this.LearningRate * (dd - states.v[k]);
+                        states.w[k] = states.w[k] + this.LearningRate * (1 - states.w[k]);
+
+                        //Sorted model
+                        if (kHit === k) {
+                            break; //already sorted
+                        }
+
+                        let gaussianRank = [0, 0, 0, 0, 0];
+                        for (let i = 0; i <= k; i++) {
+                            gaussianRank[i] = states.w[i] / Math.sqrt(states.v[i]);
+                        }
+
+                        //Sort by rank
+                        for (let r = k; r > 0; r--) {
+                            kHit = r;
+                            if (gaussianRank[r - 1] >= gaussianRank[r]) {
+                                break;
+                            } else {
+
+                                states.v = this.swap(states.v, r - 1, r);
+                                states.w = this.swap(states.w, r - 1, r);
+                                states.v = this.swap(states.v, r - 1, r);
+                                kHit = r - 1;
+                            }
+                        }
+
+                    }
+                }
+
+                if (!match) {
+                    kHit = kCurr;
+                    states = this.initializeModelParameters(states, kHit, x);
+                }
+
+                let wSum = states.w.reduce((a, b) => a + b);
+                let wScale = 1 / wSum;
+                states.w = states.w.map(x => x * wScale);
+
+                let kBackground = -1;
+                let _wSum = 0;
+                for (let i = 0; i < this.NumGaussians; i++) {
+                    _wSum += states.w[i];
+                    if (_wSum >= this.MinimumBackgroundRatio) {
+                        kBackground = i;
+                        break;
+                    }
+                }
+                fgMask[i] = kHit > kBackground ? 1 : 0;
+
+                this.Weights[i] = states.w;
+                this.Means[i] = states.m;
+                this.Variances[i] = states.v;
+            }
+            return fgMask;
+        }
+
+        initializeModelParameters(states, k, x) {
+            states.w[k] = this.InitialWeight;
+            states.m[k] = x;
+            states.v[k] = this.InitialVariance;
+            return states;
+        }
+
+
+        swap(x, idx1, idx2) {
+            let data = x;
+            let temp = data[idx1];
+            data[idx1] = data[idx2];
+            data[idx2] = temp;
+            return data;
+        }
+
+        zeros(row, col) {
+            let _data = [];
+            for (let i = 0; i < row; i++) {
+                let _col = [];
+                for (let j = 0; j < col; j++) {
+                    _col.push(0)
+                }
+                _data.push(_col);
+            }
+            return _data;
+        }
+
+        ones(row, col) {
+            let _data = [];
+            for (let i = 0; i < row; i++) {
+                let _col = [];
+                for (let j = 0; j < col; j++) {
+                    _col.push(1)
+                }
+                _data.push(_col);
+            }
+            return _data;
+        }
+
+        multiply(arr, scalar) {
+            return arr.map(row => {
+                return row.map(val => val * scalar)
+            })
+        }
+    }
+
+    e.ForeGroundDetector = new t();
+}(DRONE || (DRONE = {}));
+
 /**
  * Object detection controller
  */
 !function (e) {
+    class BlobAnalyser {
+        constructor() {
+            this.MinimumBlobArea = 150;
+            this.bbox = [];
+
+        }
+
+        init(data, width, height) {
+            this.width = width;
+            this.height = height;
+            this.reshaped = this.reshape(data)
+            this.node = this.constructGraph();
+            this.blobAnalysis();
+            this.extractBlobs();
+            this.filterBlobs();
+
+        }
+
+        filterBlobs() {
+            for (let key in this.blobs) {
+                let xmin = this.width, ymin = this.height, xmax = 0, ymax = 0;
+                this.blobs[key].forEach(node => {
+                    xmin = xmin < node.x ? xmin : node.x;
+                    xmax = xmax > node.x ? xmax : node.x;
+                    ymin = ymin < node.y ? ymin : node.y;
+                    ymax = ymax > node.y ? ymax : node.y;
+                });
+                let area = (xmax - xmin) * (ymax - ymin);
+                if (area > this.MinimumBlobArea) {
+                    this.bbox.push({x: xmin, y: ymax, width: xmax - xmin, height: ymax - ymin})
+                }
+
+            }
+        }
+
+        extractBlobs() {
+            this.blobs = {};
+            this.node.forEach(n => {
+                if (n.hasOwnProperty("currentLabel")) {
+                    if (!this.blobs.hasOwnProperty(n.currentLabel)) {
+                        this.blobs[n.currentLabel] = [];
+                        this.blobs[n.currentLabel].push(n);
+
+                    } else {
+                        this.blobs[n.currentLabel].push(n);
+                    }
+                }
+            })
+        }
+
+        blobAnalysis() {
+            this.queue = [];
+            let currentLabel = 1;
+            for (let n = 0; n < this.node.length; n++) {
+                if (this.node[n].val === 1 && !this.node[n].hasOwnProperty('currentLabel')) {
+                    this.node[n].currentLabel = currentLabel;
+                    this.queue.push(this.node[n]);
+                    this.processQueue(currentLabel);
+                    currentLabel++;
+
+                }
+                if (this.node[n].val === 0 || this.node[n].hasOwnProperty('currentLabel')) {
+                    continue;
+                }
+
+
+            }
+
+        }
+
+        processQueue(currentLabel) {
+            while (this.queue.length != 0) {
+                let node = this.queue.pop();
+                node.neighbours.forEach(n => {
+                    if (this.node[n.r * this.width + n.c].val === 1 && !this.node[n.r * this.width + n.c].hasOwnProperty('currentLabel')) {
+                        this.node[n.r * this.width + n.c].currentLabel = currentLabel;
+                        this.queue.push(this.node[n.r * this.width + n.c]);
+                    }
+                })
+            }
+
+        }
+
+        constructGraph() {
+            let result = [];
+            for (let r = 0; r < this.height; r++) {
+                for (let c = 0; c < this.width; c++) {
+                    //4-connectivity
+                    let node = {};
+                    node.x = c;
+                    node.y = r;
+                    node.val = this.reshaped[r][c];
+                    node.neighbours = [];
+                    if (c !== 0) node.neighbours.push({r: r, c: c - 1});
+                    if (c !== this.width - 1) node.neighbours.push({r: r, c: c + 1});
+                    if (r !== 0) node.neighbours.push({r: r - 1, c: c});
+                    if (r !== this.height - 1) node.neighbours.push({r: r + 1, c: c});
+                    result.push(node);
+
+                }
+            }
+            return result;
+        }
+
+        reshape(data) {
+            let result = [];
+            for (let r = 0; r < this.height; r++) {
+                let _col = [];
+                for (let c = 0; c < this.width; c++) {
+                    let v = data[r * this.width + c];
+                    _col.push(v);
+                }
+                result.push(_col);
+            }
+            return result;
+        }
+    };
+    class Blob {
+        constructor(x,y){
+            this.minx = x;
+            this.maxx =x;
+            this.miny = y;
+            this.maxy = y;
+            this.thresholdDist = 50;
+        }
+        add(px,py){
+            this.minx = Math.min(this.minx, px);
+            this.maxx = Math.max(this.maxx, px);
+            this.miny = Math.min(this.miny, py);
+            this.maxy = Math.max(this.maxy, py);
+        }
+        getCenter(){
+            return [(this.minx + this.maxx)/2, (this.miny + this.maxy)/2]
+        }
+        getDistance(px, py){
+            let center = this.getCenter();
+            let cx = center[0];
+            let cy = center[1];
+            return Math.sqrt(Math.pow(px-cx,2)+ Math.pow(py-cy,2))
+        }
+        isNear(px,py){
+            let cx = (this.minx + this.maxx)/2;
+            let cy = (this.miny + this.maxy)/2;
+            let dist = Math.sqrt(Math.pow(px-cx,2)+ Math.pow(py-cy,2))
+            return dist <this.thresholdDist?true:false;
+        }
+    }
+    class BlobAnalyzerMean{
+        constructor(){
+            this.bbox = [];
+            this.blobs=[];
+            this.minimumAreaThreshold =150;
+        }
+        init(data, width, height) {
+            this.width = width;
+            this.height = height;
+            //Reshape image data reading from bottom left to top left
+            this.reshaped = data; //Data contains only gray scale value
+            this.blobAnalysis();
+           // this.filterBlobs();
+        }
+        blobAnalysis(){
+            for(let i=0; i< this.reshaped.length;i++){
+                let val = this.reshaped[i];
+                let px = (i ) % this.width ;
+                let py = Math.floor(i/this.height);
+
+                if(val ===1){ //not black value
+                    if (this.blobs.length > 0) { //Exist blob
+                        let found = false;
+
+                        for (let j = 0; j < this.blobs.length; j++) {
+                            if (this.blobs[j].isNear(px, py)) {
+                                this.blobs[j].add(px, py);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            let blob = new Blob(px, py);
+                            this.blobs.push(blob);
+                        }
+                    } else {
+                        // console.log("No data, initialize....")
+                        let blob = new Blob(px, py);
+                        this.blobs.push(blob);
+                    }
+                }
+            }
+        }
+        filterBlobs() {
+            this.blobs.forEach(blob=>{
+                let area = (blob.maxx-blob.minx)*(blob.maxy-blob.miny);
+                if(area > this.minimumAreaThreshold){
+                    this.bbox.push(blob);
+                }
+            })
+        }
+        reshape(data) {
+            let result = [];
+            for (let r = 0; r < this.height; r++) {
+                let _col = [];
+                for (let c = 0; c < this.width; c++) {
+                    let v = data[r * this.width + c];
+                    _col.push(v);
+                }
+                result.push(_col);
+            }
+            return result;
+        }
+    }
     let t = Backbone.Model.extend({
         init: function () {
-            //this.on('cocoSsd:ready', this.triggerObjectDetection, this);
-            this.canvas = document.querySelector('#canvas_scene')
+            this.on('cocoSsd:ready', this.triggerObjectDetection, this);
+            this.canvas = document.querySelector('#canvas_scene');
+            this.detector = e.ForeGroundDetector;
+            this.detector.init(this.canvas.width * this.canvas.height);
+            this.count = 0;
+            this.detected =false;
+
         },
         triggerOffObjectDetection: function () {
+            $('#overlay').empty();
             e.AnimationController.off('draw', this._onDraw, this)
         },
         triggerObjectDetection: function () {
+
+
             e.AnimationController.on('draw', this._onDraw, this)
         },
         _onDraw: function () {
-            e.mainScene.model.detect(this.canvas).then(predictions => {
-                $('.detectObject').remove();
-                if (predictions.length > 0) {
-                    predictions.forEach(predict => {
-                        if (predict.class !== "airplane" && predict.class !== "kite") {
-                            let div = document.createElement('div')
-                            div.className = 'detectObject';
-                            div.style.left = predict.bbox[0] + "px";
-                            div.style.top = predict.bbox[1] + "px";
-                            div.style.width = predict.bbox[2] + "px";
-                            div.style.height = predict.bbox[3] + "px";
-                            div.setAttribute('name', predict.class);
-                            let text = document.createElement('span')
-                            text.innerHTML = predict.class;
-                            div.appendChild(text);
-                            document.body.appendChild(div)
-                        }
-
-                    })
-                }
+            let gl = e.mainScene.renderer.getContext('webgl', {
+                preserveDrawingBuffer: true
             });
+            this.count += 1;
+            let t1 = performance.now();
+            var pixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
+            gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+            let buffer = [];
+
+            for (let i = 0; i < pixels.length; i += 4) {
+                let gray = 0.2989 * pixels[i] + 0.5870 * pixels[i + 1] + 0.1140 * pixels[i + 2];
+                let ii = i/4;
+
+                let row = gl.drawingBufferHeight - Math.floor(ii/gl.drawingBufferWidth);
+                let currentCol = ii%gl.drawingBufferWidth;
+                let currIndex = (row-1)*(gl.drawingBufferWidth)+currentCol;
+                buffer[currIndex] =Math.round(gray);
+            }
+            let fgMask = this.detector.step(buffer);
+            // let maskCanvas = document.createElement('canvas');
+            // maskCanvas.width = gl.drawingBufferWidth;
+            // maskCanvas.height = gl.drawingBufferHeight;
+            // let maskCtx = maskCanvas.getContext('2d');
+            // let imageData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+            // for (let i = 0; i < fgMask.length; i++) {
+            //     imageData.data[i * 4] = fgMask[i] * 255;
+            //     imageData.data[i * 4 + 1] = fgMask[i] * 255;
+            //     imageData.data[i * 4 + 2] = fgMask[i] * 255;
+            //     imageData.data[i * 4 + 3] = 255;
+            // }
+            // maskCtx.putImageData(imageData, 0, 0, 0, 0, maskCanvas.width, maskCanvas.height);
+            // document.body.appendChild(maskCanvas);
+
+            // let t1 = performance.now();
+            let blob = new BlobAnalyzerMean();
+            blob.init(fgMask, gl.drawingBufferWidth, gl.drawingBufferHeight);
+            // let t2 = performance.now();
+            // console.log(`Time taken for blob analysis: ${t2-t1} milliseconds`);
+            $('#overlay').empty();
+            blob.blobs.forEach((blob,bi) => {
+                let area = (blob.maxx-blob.minx)*(blob.maxy-blob.miny);
+                if(area >500){
+
+                    // let t2 = performance.now();
+                    // console.log(`Time taken for object detector: ${t2-t1} milliseconds`);
+                    if(!this.detected){
+                        console.log(`The object is detected at frame: ${this.count}`)
+                        this.detected = true;
+                    }
+                    let rect = document.createElement('div');
+                    rect.style.position = 'absolute';
+                    rect.style.marginLeft = blob.minx + 'px';
+                    rect.style.marginTop = blob.miny + 'px';
+                    rect.style.width = (blob.maxx - blob.minx) + 'px';
+                    rect.style.height = (blob.maxy - blob.miny) + 'px';
+                    rect.style.border = 'yellow thin solid';
+                    let text = document.createElement('div');
+                    text.innerText=`object ${bi}`;
+                    text.style.marginTop='-5px';
+                    rect.appendChild(text);
+                    $('#overlay').append(rect);
+                }
+
+            });
+
         }
     });
+
     e.ObjectDetectionController = new t();
 }(DRONE || (DRONE = {}));
 
@@ -454,8 +890,18 @@ var DRONE; //Global  namespace
                 return point;
 
             }
+        },
+        reset:function () {
+            this.set({
+                paths: null,
+                isPathReady: false,
+                currentIndex: 0,
+                nextIndex: 1,
+                currentPaths: null,
+                currentPathIndex: 0,
+                nextPathIndex: 1
+            })
         }
-
     });
     e.PathController = new t();
 }(DRONE || (DRONE = {}));
@@ -468,7 +914,7 @@ var DRONE; //Global  namespace
     let t = Backbone.Model.extend({
             defaults: {
                 longitude: "-101.875", latitude: "33.5845",
-                zoom: 15,
+                zoom: 16,
                 offline: true,
                 width: 1024,
                 height: 512,
@@ -477,7 +923,7 @@ var DRONE; //Global  namespace
                 height_segment: 16,
                 depth_segment: 3,
                 showMatrixWorld: true,
-                dronePos: new THREE.Vector3(0, 0, 0),
+                dronePos: new THREE.Vector3(0, 20, 0),
                 numberOfTargets: 4,
                 currentPoint: null
             },
@@ -495,16 +941,22 @@ var DRONE; //Global  namespace
                 this.trigger('cocoSsd:start');
                 this.scene = new THREE.Scene();
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e3);
-                this.camera.position.z = 15;
-                this.camera.position.y = 8;
-                this.camera.lookAt(0, 0, 0);
-                this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: !0});
+                // this.camera.position.z = 5;
+                // this.camera.position.y = 2;
+                // this.camera.lookAt(0, 0, 0);
+                this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: !0, preserveDrawingBuffer: true});
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.gammaOutput = true;
+                this.renderer.gammaFactor = 2.2;
                 this.renderer.domElement.id = 'canvas_scene';
+                let directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+                this.scene.add(directionalLight);
+
                 $('#three').append(this.renderer.domElement);
 
                 this.addPlane();
                 this.droneClone = this.addDrone();
+                this.tank = this.addTank();
                 this.initOSM();
                 this.container.add(this.targetContainer);
                 this.container.rotation.x = -0.5 * Math.PI;
@@ -514,7 +966,74 @@ var DRONE; //Global  namespace
 
                 //Register navigation controller
                 e.AnimationController.on('draw', this.updateNavController, this);
+               this.registerCamToDrone();
+            },
+            returnHome(points){
+               console.log("Start returning home");
+                //First stop the drone
+               this.pauseAnimation();
+               //Second, clear all existing path
+               this.clearExistingPoints();
+               this.targetContainer.children =[];
+                this.container.remove(this.targetContainer);
+                let _geometry = new THREE.BufferGeometry();
+                let _vertices = new Float32Array(points.length * 3);
+                let scalerX = d3.scaleLinear()
+                    .domain([0, 512])
+                    .range([-512, 512]);
+                let scalerY = d3.scaleLinear()
+                    .domain([0, 256])
+                    .range([-256, 256]);
+                for (let i = 0; i < points.length; i++) {
 
+                    let targetGeo = new THREE.SphereBufferGeometry(0.5, 10, 10);
+                    let targetMat = new THREE.MeshBasicMaterial({
+                        transparent: true,
+                        opacity: 0,
+                    });
+                    let target = new THREE.Mesh(targetGeo, targetMat);
+                    target.name = "target";
+                    let posR = new THREE.Vector3(scalerX(points[i]._pos.x), scalerY(points[i]._pos.y), 0);
+                    let grid = this.world3DtoGrid(posR, this.get('width_segment'),
+                        this.get('height_segment'),
+                        this.get('depth_segment'),
+                        this.get('width'),
+                        this.get('height'),
+                        this.get('depth'));
+                    let n = this.get('matrixData')[grid.zGrid][grid.yGrid][grid.xGrid];
+                    target.position.set(
+                        n.x_3D,
+                        n.y_3D,
+                        n.z_3D,
+                    );
+                    _vertices[i * 3] = n.x_3D;
+                    _vertices[i * 3 + 1] = n.y_3D;
+                    _vertices[i * 3 + 2] = n.z_3D;
+                    target.name = "Waypoint";
+                    this.targetContainer.add(target);
+
+                }
+                _geometry.addAttribute('position', new THREE.BufferAttribute(_vertices, 3));
+                let _material = new THREE.PointsMaterial({
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    size: 8,
+                    map: e.preload.texture.particle1,
+                    opacity: 0.5,
+                    depthTest: false
+
+                });
+                let mesh = new THREE.Points(_geometry, _material);
+                mesh.name = "waypoint";
+                this.container.add(mesh);
+                this.trigger('target:ready');
+
+
+
+            },
+            clearExistingPoints:function(){
+                this.container.remove(this.targetContainer);
+                e.PathController.reset();
             },
             updateNavController: function () {
                 let speed = 0.5;
@@ -749,6 +1268,50 @@ var DRONE; //Global  namespace
                 this.trigger('matrix:draw');
 
             },
+            animateTank: function (time, deltaTime) {
+                // this.tank.position.x -= 0.3;
+                this.tank.position.z -= 0.3;
+
+                // this.tank2.position.x -= 0.3;
+                this.tank2.position.z -= 0.3;
+                // let direction = new THREE.Vector3();
+                // direction.sub(this.tank.position);
+                // this.tank.position.add(direction.multiplyScalar(-deltaTime));
+            },
+            addTank: function () {
+                let loader = new THREE.OBJLoader();
+                let _this = this;
+
+
+                loader.load(
+                    'src/assets/model/MC1.obj',
+
+                    function (object) {
+                        // Add the loaded object to the scene
+                        // object.scale.set(1, 0.5, 0.5);
+
+                        _this.tank = object.clone();
+                        _this.tank2 = object.clone();
+                        _this.tank.position.set(5,-5,0);
+                        _this.tank2.position.set(-5,-5,0);
+
+                        _this.scene.add(_this.tank);
+                        _this.scene.add(_this.tank2);
+                        e.AnimationController.on('draw', _this.animateTank, _this);
+
+                    },
+
+                    // onProgress callback
+                    function (xhr) {
+                        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                    },
+
+                    // onError callback
+                    function (err) {
+                        console.error('An error happened');
+                    }
+                );
+            },
             addDrone: function () {
                 let droneClone = e.droneModel.container.clone();
                 droneClone.position.copy(this.get('dronePos'));
@@ -832,10 +1395,9 @@ var DRONE; //Global  namespace
             async initCoCoSsd() {
                 $('#intro').show();
                 $('#intro').html("MODEL IS LOADING...")
-                const model = await cocoSsd.load();
-                this.model = await model;
-                e.ObjectDetectionController.init();
-                e.ObjectDetectionController.trigger('cocoSsd:ready');
+                // const model = await cocoSsd.load();
+                // this.model = await model;
+
                 $('#intro').html("MODEL IS LOADED");
                 $('#intro').fadeOut(2000);
             },
@@ -1006,7 +1568,7 @@ var DRONE; //Global  namespace
                 this.trigger('matrixData:ready');
                 return matrix;
             },
-            initWayPoints:function(points){
+            initWayPoints: function (points) {
                 //Remove previous Point
                 this.container.remove(this.targetContainer);
                 let _geometry = new THREE.BufferGeometry();
@@ -1057,7 +1619,7 @@ var DRONE; //Global  namespace
 
                 });
                 let mesh = new THREE.Points(_geometry, _material);
-                mesh.name ="waypoint";
+                mesh.name = "waypoint";
                 this.container.add(mesh);
                 this.trigger('target:ready');
             },
@@ -1120,12 +1682,13 @@ var DRONE; //Global  namespace
                 this.set({savedPath: []});
 
                 let DronePos = new THREE.Vector3();
-                DronePos.copy(this.droneClone.position);
+                DronePos.copy(this.get('dronePos'));
                 DronePos.applyAxisAngle(new THREE.Vector3(1, 0, 0), 0.5 * Math.PI);
                 //Check if target is not empty
                 if (this.buildings.children.length > 0) {
                     //convert drone position to node index
                     let droneIndex = this.world3DtoNode(DronePos);
+
                     let targets = this.targetContainer.children.map(t => {
                         return t.position
                     });
@@ -1153,7 +1716,6 @@ var DRONE; //Global  namespace
                                     // debugger;
                                     if (intersects.length > 0) {
                                         if (intersects[0].distance > distance) {
-                                            console.log('Intesected..  but distance is greater than normal')
                                             v0.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5 * Math.PI);
                                             v1.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5 * Math.PI);
                                             temp.push(v0)
@@ -1206,8 +1768,8 @@ var DRONE; //Global  namespace
 
                         let line = new THREE.Line(lgeometry, lmaterial);
                         let lineNormal = new THREE.Line(lnormalGeo, lNormalmaterial);
-                        this.scene.add(line);
-                        this.scene.add(lineNormal);
+                        //  this.scene.add(line);
+                        // this.scene.add(lineNormal);
                         this.set({animationPoints: temp});
                         this.set({savedPath: _paths});
                         e.PathController.set({paths: _paths});
@@ -1366,10 +1928,7 @@ var DRONE; //Global  namespace
                 zoom: zoom // starting zoom
             });
 
-            this.map.on('mousemove', function (e) {
-                $('#info').html(`${JSON.stringify(e.point)} and ${JSON.stringify(e.lngLat)}`)
 
-            });
             let el = document.createElement('div');
             el.className = 'marker-drone';
 
@@ -1380,7 +1939,27 @@ var DRONE; //Global  namespace
             this.map.on('click', this.handleClick);
             e.mainScene.on('dronePos:update', this.updateMarker, this);
         },
-        updateMarker: function(){
+        removeMarkers:function(){
+            this.markers.forEach(marker=>{
+                marker.remove();
+            });
+            this.addHomePoint();
+
+
+
+        },
+        addHomePoint:function(){
+            this.markers =[];
+            const lon = e.mainScene.get('longitude');
+            const lat = e.mainScene.get('latitude');
+            let marker = new mapboxgl.Marker({
+                draggable: true
+            }).setLngLat([lon, lat])
+                .addTo(this.map);
+            marker.visited = false;
+            this.markers.push(marker);
+        },
+        updateMarker: function () {
             let position = e.mainScene.get('dronePos');
             let x = this.scalerX(position.x);
             let y = this.scalerY(position.z);
@@ -1389,7 +1968,7 @@ var DRONE; //Global  namespace
         },
         handleClick: function (m) {
 
-           let marker =  new mapboxgl.Marker({
+            let marker = new mapboxgl.Marker({
                 draggable: true
             }).setLngLat([m.lngLat.lng, m.lngLat.lat])
                 .addTo(this);
@@ -1547,7 +2126,8 @@ var DRONE; //Global  namespace
         init() {
             this.set({
                 navMouseCenterClicked: false,
-                cocoButton: false
+                cocoButton: false,
+                togglemap: true
             });
             var _this = this;
             this.on('change:navMouseCenterClicked', this.onChangeStartStop);
@@ -1610,8 +2190,29 @@ var DRONE; //Global  namespace
             $('#r-right').on('mousedown', this._rotRightMouseDown);
             $('#r-right').on('mouseup', this._rotRightMouseUp);
             $('#confirm').on('click', this._wayPointonClick);
+            $('#toggle').on('click', this._toggleMap);
+            $('#home').on('click', this._homeReturn);
         }
-        _wayPointonClick =()=>{
+        _homeReturn =()=>{
+            e.miniMap.removeMarkers();
+            $('#paths').remove();
+            e.mainScene.returnHome(e.miniMap.markers);
+        }
+        _toggleMap = () => {
+            let toggle = !this.get('togglemap');
+            if (toggle) {
+                $('#toggle').find('i').removeClass('fa-toggle-off');
+                $('#toggle').find('i').addClass('fa-toggle-on');
+                $('#mapid').show();
+
+            } else {
+                $('#toggle').find('i').removeClass('fa-toggle-on');
+                $('#toggle').find('i').addClass('fa-toggle-off');
+                $('#mapid').hide();
+            }
+            this.set({togglemap: toggle});
+        };
+        _wayPointonClick = () => {
 
             e.mainScene.initWayPoints(e.miniMap.markers)
         }
@@ -1623,13 +2224,15 @@ var DRONE; //Global  namespace
             let flag = this.get('cocoButton');
 
             if (!flag) {
+                e.ObjectDetectionController.init();
+                e.ObjectDetectionController.trigger('cocoSsd:ready');
                 e.ObjectDetectionController.triggerObjectDetection()
-                $('#coco').find('i').addClass('fa-spin');
+               // $('#coco').find('i').addClass('fa-spin');
 
             } else {
                 $('.detectObject').remove();
                 e.ObjectDetectionController.triggerOffObjectDetection()
-                $('#coco').find('i').removeClass('fa-spin');
+               // $('#coco').find('i').removeClass('fa-spin');
             }
 
 
@@ -1637,56 +2240,62 @@ var DRONE; //Global  namespace
 
         }
         generateSVG = () => {
-            let filtered = e.PathController.get('paths');
-            let dist = 0;
-            filtered.map(d => {
-                let v0 = new THREE.Vector3(d.fromNode.x, d.fromNode.y, d.fromNode.z);
-                let v1 = new THREE.Vector3(d.toNode.x, d.toNode.y, d.toNode.z);
-                dist += v0.distanceTo(v1);
-                d.distance = dist;
-            });
-            this.set({paths: filtered});
-            this.trigger('currentPath:ready')
-            let scaler = d3.scaleLinear()
-                .domain([0, dist])
-                .range([0, 430]);
 
-            let paths = d3.select("#paths")
-                .append("svg")
-                .attr("width", 450)
-                .attr("height", 30);
-            paths.append('line')
-                .attr('x1', 4)
-                .attr('y1', 10)
-                .attr('x2', () => {
-                    return scaler(filtered[filtered.length - 1].distance)
-                })
-                .attr('y2', 10)
-                .attr('stroke', '#ffffff')
-                .attr('stroke-width', '1px');
-            paths.append('circle')
-                .attr('r', 2)
-                .attr('cx', 4)
-                .attr('cy', 10)
-                .attr('stroke', '#fff')
-                .attr('stroke-width', 1)
-                .attr('fill', '#0874a2')
-            paths.selectAll('.circle')
-                .data(filtered)
-                .enter()
-                .append('circle')
-                .attr('r', 8)
-                .attr('cx', d => {
-                    return scaler(d.distance)
-                })
-                .attr('cy', 10)
-                .attr('stroke', '#fff')
-                .attr('stroke-width', 1)
-                .attr('fill', '#0874a2')
-                .attr('class', 'circle')
-                .attr('id', function (d, i) {
-                    return 'goal' + i;
-                })
+                let filtered = e.PathController.get('paths');
+                if(filtered!=null){
+                    let dist = 0;
+                    filtered.map(d => {
+                        let v0 = new THREE.Vector3(d.fromNode.x, d.fromNode.y, d.fromNode.z);
+                        let v1 = new THREE.Vector3(d.toNode.x, d.toNode.y, d.toNode.z);
+                        dist += v0.distanceTo(v1);
+                        d.distance = dist;
+                    });
+                    this.set({paths: filtered});
+                    this.trigger('currentPath:ready')
+                    let scaler = d3.scaleLinear()
+                        .domain([0, dist])
+                        .range([0, 430]);
+
+                    let paths = d3.select("#paths")
+                        .append("svg")
+                        .attr("width", 450)
+                        .attr("height", 30);
+                    paths.append('line')
+                        .attr('x1', 4)
+                        .attr('y1', 10)
+                        .attr('x2', () => {
+                            return scaler(filtered[filtered.length - 1].distance)
+                        })
+                        .attr('y2', 10)
+                        .attr('stroke', '#ffffff')
+                        .attr('stroke-width', '1px');
+                    paths.append('circle')
+                        .attr('r', 2)
+                        .attr('cx', 4)
+                        .attr('cy', 10)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 1)
+                        .attr('fill', '#0874a2')
+                    paths.selectAll('.circle')
+                        .data(filtered)
+                        .enter()
+                        .append('circle')
+                        .attr('r', 8)
+                        .attr('cx', d => {
+                            return scaler(d.distance)
+                        })
+                        .attr('cy', 10)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 1)
+                        .attr('fill', '#0874a2')
+                        .attr('class', 'circle')
+                        .attr('id', function (d, i) {
+                            return 'goal' + i;
+                        })
+
+                }
+
+
         }
         updateLine = () => {
             let index = e.PathController.get('goalReached');
