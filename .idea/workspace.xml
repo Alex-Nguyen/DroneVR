@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="edfe0a90-a5fb-451f-b297-a3517b6317eb" name="Default Changelist" comment="" />
+    <list default="true" id="edfe0a90-a5fb-451f-b297-a3517b6317eb" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -14,18 +17,9 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/blobAnalysis.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="352">
-              <caret line="16" column="37" selection-start-line="16" selection-start-column="37" selection-end-line="16" selection-end-column="37" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/blobAnalysis_1.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1848">
+            <state relative-caret-position="1260">
               <caret line="84" selection-start-line="84" selection-end-line="84" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -37,7 +31,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2112">
+            <state relative-caret-position="167">
               <caret line="153" column="68" selection-start-line="153" selection-start-column="68" selection-end-line="153" selection-end-column="68" />
               <folding>
                 <element signature="n#script#15;n#head#0;n#html#0;n#!!top" />
@@ -51,7 +45,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/backbone.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="550">
+            <state relative-caret-position="375">
               <caret line="25" column="10" selection-start-line="25" selection-start-column="10" selection-end-line="25" selection-end-column="10" />
             </state>
           </provider>
@@ -60,7 +54,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/assets/css/body.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="9438">
+            <state relative-caret-position="6435">
               <caret line="429" column="7" selection-start-line="429" selection-start-column="7" selection-end-line="429" selection-end-column="7" />
             </state>
           </provider>
@@ -69,11 +63,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/js/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="44616">
-              <caret line="2197" column="33" selection-start-line="2197" selection-start-column="33" selection-end-line="2197" selection-end-column="33" />
+            <state relative-caret-position="-7780">
+              <caret line="1337" column="38" selection-start-line="1337" selection-start-column="35" selection-end-line="1337" selection-end-column="38" />
               <folding>
                 <element signature="e#10417#16051#0" />
+                <element signature="e#27704#39852#0" />
+                <element signature="e#97559#99042#0" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/aframe.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="195">
+              <caret line="13" column="7" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
             </state>
           </provider>
         </entry>
@@ -83,11 +88,11 @@
           <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="259">
-              <caret line="23" column="16" lean-forward="true" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
+            <state relative-caret-position="675">
+              <caret line="45" column="47" selection-start-line="45" selection-start-column="47" selection-end-line="45" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -95,7 +100,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tank.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1122">
+            <state relative-caret-position="765">
               <caret line="51" column="6" selection-start-line="28" selection-start-column="3" selection-end-line="51" selection-end-column="6" />
             </state>
           </provider>
@@ -104,7 +109,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/js/OBJLoader.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17512">
+            <state relative-caret-position="11940">
               <caret line="796" column="6" selection-start-line="796" selection-start-column="6" selection-end-line="796" selection-end-column="6" />
             </state>
           </provider>
@@ -123,7 +128,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>ForeGroundDetector</find>
       <find>camera</find>
       <find>tank</find>
       <find>raf</find>
@@ -153,10 +157,14 @@
       <find>PathController</find>
       <find>generateSVG</find>
       <find>initWayPoints</find>
+      <find>xml</find>
     </findStrings>
     <replaceStrings>
       <replace>NoBlending</replace>
     </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -196,47 +204,44 @@
   <component name="PackageJsonUpdateNotifier">
     <dismissed value="$PROJECT_DIR$/package.json" />
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="85" />
-    <option name="y" value="25" />
-    <option name="width" value="1750" />
-    <option name="height" value="980" />
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1440" />
+    <option name="height" value="801" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
-              <item name="AIVRDrone" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AIVRDrone" type="462c0819:PsiDirectoryNode" />
+              <item name="DroneVR" type="b2602c69:ProjectViewProjectNode" />
+              <item name="DroneVR" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="AIVRDrone" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AIVRDrone" type="462c0819:PsiDirectoryNode" />
+              <item name="DroneVR" type="b2602c69:ProjectViewProjectNode" />
+              <item name="DroneVR" type="462c0819:PsiDirectoryNode" />
+              <item name="dist" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="DroneVR" type="b2602c69:ProjectViewProjectNode" />
+              <item name="DroneVR" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="AIVRDrone" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AIVRDrone" type="462c0819:PsiDirectoryNode" />
+              <item name="DroneVR" type="b2602c69:ProjectViewProjectNode" />
+              <item name="DroneVR" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AIVRDrone" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AIVRDrone" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-              <item name="css" type="462c0819:PsiDirectoryNode" />
+              <item name="js" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -323,16 +328,19 @@
       <workItem from="1563828031649" duration="1910000" />
       <workItem from="1564102964761" duration="609000" />
       <workItem from="1564769732963" duration="64000" />
+      <workItem from="1575958778893" duration="483000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="276087000" />
+    <option name="totallyTimeSpent" value="276570000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="0" y="23" width="1440" height="801" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27230668" />
+      <window_info id="npm" side_tool="true" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27202255" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -487,23 +495,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/aframe.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="13" column="7" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/blobAnalysis.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
+        <state relative-caret-position="240">
           <caret line="16" column="37" selection-start-line="16" selection-start-column="37" selection-end-line="16" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/blobAnalysis_1.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1848">
+        <state relative-caret-position="1260">
           <caret line="84" selection-start-line="84" selection-end-line="84" />
           <folding>
             <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -511,9 +512,47 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/backbone.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="10" selection-start-line="25" selection-start-column="10" selection-end-line="25" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/css/body.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6435">
+          <caret line="429" column="7" selection-start-line="429" selection-start-column="7" selection-end-line="429" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/model/tank/Body 1.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tank.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="51" column="6" selection-start-line="28" selection-start-column="3" selection-end-line="51" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/js/OBJLoader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="11940">
+          <caret line="796" column="6" selection-start-line="796" selection-start-column="6" selection-end-line="796" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="45" column="47" selection-start-line="45" selection-start-column="47" selection-end-line="45" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2112">
+        <state relative-caret-position="167">
           <caret line="153" column="68" selection-start-line="153" selection-start-column="68" selection-end-line="153" selection-end-column="68" />
           <folding>
             <element signature="n#script#15;n#head#0;n#html#0;n#!!top" />
@@ -523,51 +562,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/backbone.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="550">
-          <caret line="25" column="10" selection-start-line="25" selection-start-column="10" selection-end-line="25" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/assets/css/body.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9438">
-          <caret line="429" column="7" selection-start-line="429" selection-start-column="7" selection-end-line="429" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/js/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="44616">
-          <caret line="2197" column="33" selection-start-line="2197" selection-start-column="33" selection-end-line="2197" selection-end-column="33" />
+        <state relative-caret-position="-7780">
+          <caret line="1337" column="38" selection-start-line="1337" selection-start-column="35" selection-end-line="1337" selection-end-column="38" />
           <folding>
             <element signature="e#10417#16051#0" />
+            <element signature="e#27704#39852#0" />
+            <element signature="e#97559#99042#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/assets/model/tank/Body 1.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tank.html">
+    <entry file="file://$PROJECT_DIR$/aframe.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1122">
-          <caret line="51" column="6" selection-start-line="28" selection-start-column="3" selection-end-line="51" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/js/OBJLoader.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17512">
-          <caret line="796" column="6" selection-start-line="796" selection-start-column="6" selection-end-line="796" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="23" column="16" lean-forward="true" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
+        <state relative-caret-position="195">
+          <caret line="13" column="7" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
         </state>
       </provider>
     </entry>
